@@ -34,7 +34,7 @@
       <div class="profile-desc" id="pDesc"></div>
       
       <div class="profile-actions">
-        <button class="btn btn-secondary" onclick="openSecretModal()">🔒 Reviews Secreta</button>
+        <button class="btn btn-secondary" onclick="openSecretModal()">🔒 Reviews</button>
         <button class="btn btn-secondary" id="adminEditBtn" style="display:none;" onclick="openEditProfileModal()">✏️ Editar Perfil</button>
         <button class="btn" id="adminAddMovieBtn" style="display:none;" onclick="openAddMovieModal()">+ Adicionar Filme</button>
       </div>
@@ -60,6 +60,7 @@
           <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
           <div id="mAdminActions" style="margin-top:20px; display:none;">
             <button class="btn btn-secondary" onclick="deleteCurrentMovie()">Excluir Filme</button>
+            <button onclick="editarFilme('${filme.id}', ${JSON.stringify(filme).replace(/"/g, '&quot;')})">Editar</button>
           </div>
         </div>
       </div>
