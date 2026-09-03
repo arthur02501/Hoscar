@@ -40,14 +40,13 @@ let movies = JSON.parse(localStorage.getItem('hoscar_movies')) || [
     id: '1',
     profileId: 'arthur',
     title: 'Exemplo de Filme Com Titulo Bastante Longo Para Demonstrar o Loop Infinito',
-    cover: '', // COLE A URL DA CAPA AQUI
+    cover: '', 
     rating: '9.5',
     awards: 'Prêmio Hoscar de Melhor Filme',
     desc: 'Descrição de exemplo do filme.'
   }
 ];
 
-// 'catalogo_geral' exibe TODOS os filmes. 'geral' é o perfil individual da conta geral.
 let currentSelection = 'catalogo_geral'; 
 let selectedMovieId = null;
 let currentUser = null;
@@ -86,14 +85,12 @@ function renderNav() {
   const list = document.getElementById('profileList');
   list.innerHTML = '';
 
-  // 1. Opção do Catálogo Geral
   const liGeral = document.createElement('li');
   liGeral.innerHTML = '<strong>🎬 Catálogo Geral (Todos)</strong>';
   liGeral.style.borderBottom = '2px solid rgba(0,0,0,0.2)';
   liGeral.onclick = () => { selectView('catalogo_geral'); toggleNav(false); };
   list.appendChild(liGeral);
 
-  // 2. Lista de Perfis Individuais
   profiles.forEach(p => {
     const li = document.createElement('li');
     li.textContent = p.name;
@@ -108,11 +105,9 @@ function selectView(id) {
   const catalogTitle = document.getElementById('catalogTitle');
 
   if (id === 'catalogo_geral') {
-    // Esconde o cabeçalho de perfil individual para o Catálogo Geral
     pHeader.classList.remove('active');
     catalogTitle.textContent = "Catálogo Geral (Todos os Filmes do Grupo)";
   } else {
-    // Exibe o cabeçalho do perfil selecionado (incluindo o Perfil Geral)
     const p = profiles.find(item => item.id === id);
     pHeader.classList.add('active');
     document.getElementById('pImg').src = p.img || 'https://via.placeholder.com/120/000000/ffd700?text=Sem+Foto';
@@ -121,8 +116,11 @@ function selectView(id) {
     catalogTitle.textContent = `Filmes Exclusivos de ${p.name}`;
   }
 
-  // Controle de Permissões na Interface (Apenas Arthur/Admin visualiza)
-  document.getElementById('adminEditBtn').style.display = (isAdmin && id !== 'catalogo_geral') ? 'inline-block' : 'none';
+  // Permissão de edição do perfil: Permite se for o Admin OU se for o próprio usuário dono do perfil
+  const canEditProfile = isAdmin || (loggedUsername && loggedUsername === id);
+  document.getElementById('adminEditBtn').style.display = (canEditProfile && id !== 'catalogo_geral') ? 'inline-block' : 'none';
+  
+  // Apenas Admin adiciona filmes
   document.getElementById('adminAddMovieBtn').style.display = isAdmin ? 'inline-block' : 'none';
 
   renderCatalog();
@@ -132,7 +130,6 @@ function renderCatalog() {
   const grid = document.getElementById('movieGrid');
   grid.innerHTML = '';
 
-  // Se estiver no Catálogo Geral mostra tudo; caso contrário, filtra pelo perfil
   const filteredMovies = (currentSelection === 'catalogo_geral') 
     ? movies 
     : movies.filter(m => m.profileId === currentSelection);
@@ -186,10 +183,8 @@ window.openSecretModal = async function() {
     return;
   }
 
-  // Se o menu for o Catálogo Geral, abre a caixa do 'geral', caso contrário abre a do perfil atual
   const targetProfileId = (currentSelection === 'catalogo_geral') ? 'geral' : currentSelection;
 
-  // Permissão: O usuário só acessa se for a caixa dele OU se for o Admin (Arthur)
   if (!isAdmin && loggedUsername !== targetProfileId) {
     alert("Você só tem acesso à sua própria caixa secreta!");
     return;
@@ -212,7 +207,6 @@ window.openSecretModal = async function() {
     secretText.textContent = "Erro de permissão no servidor.";
   }
 
-  // Painel de edição dentro da caixa secreta só aparece para o Admin
   document.getElementById('adminSecretEdit').style.display = isAdmin ? 'block' : 'none';
 }
 
@@ -235,32 +229,40 @@ window.saveSecretReview = async function() {
   }
 }
 
-// AÇÕES DO ADMIN
+// EDITA O PERFIL SELECIONADO
 window.openEditProfileModal = () => {
   const p = profiles.find(item => item.id === currentSelection);
   if(!p) return;
   document.getElementById('editName').value = p.name;
   document.getElementById('editImg').value = p.img;
   document.getElementById('editDesc').value = p.desc;
+  
+  // Se não for admin, desabilita a alteração do Nome
+  document.getElementById('editName').disabled = !isAdmin;
+  
   window.openModal('editProfileModal');
 };
 
 window.saveProfileChanges = () => {
   const p = profiles.find(item => item.id === currentSelection);
   if(!p) return;
-  p.name = document.getElementById('editName').value;
+  
+  if (isAdmin) {
+    p.name = document.getElementById('editName').value;
+  }
   p.img = document.getElementById('editImg').value;
   p.desc = document.getElementById('editDesc').value;
+  
   localStorage.setItem('hoscar_profiles', JSON.stringify(profiles));
   renderNav();
   selectView(currentSelection);
   window.closeModal('editProfileModal');
 };
 
+// ADICIONAR E EDITAR FILME (ADMIN)
 window.openAddMovieModal = () => window.openModal('addMovieModal');
 
 window.saveMovie = () => {
-  // Se o admin adicionar filme enquanto estiver na aba 'catalogo_geral', atrela o filme ao perfil 'arthur'
   const movieProfileOwner = (currentSelection === 'catalogo_geral') ? 'arthur' : currentSelection;
 
   const newMovie = {
@@ -287,8 +289,39 @@ window.openMovieModal = (id) => {
   document.getElementById('mModalRating').textContent = m.rating || 'N/A';
   document.getElementById('mModalAwards').textContent = m.awards || 'Nenhum';
   document.getElementById('mModalDesc').textContent = m.desc || 'Sem descrição.';
-  document.getElementById('mAdminActions').style.display = isAdmin ? 'block' : 'none';
+  
+  document.getElementById('mAdminActions').style.display = isAdmin ? 'flex' : 'none';
   window.openModal('movieModal');
+};
+
+// EDITA O FILME ATUALMENTE ABERTO
+window.openEditMovieModal = () => {
+  const m = movies.find(item => item.id === selectedMovieId);
+  if(!m) return;
+
+  document.getElementById('editFTitle').value = m.title || '';
+  document.getElementById('editFImg').value = m.cover || '';
+  document.getElementById('editFRating').value = m.rating || '';
+  document.getElementById('editFAwards').value = m.awards || '';
+  document.getElementById('editFDesc').value = m.desc || '';
+
+  window.openModal('editMovieModal');
+};
+
+window.saveMovieChanges = () => {
+  const m = movies.find(item => item.id === selectedMovieId);
+  if(!m) return;
+
+  m.title = document.getElementById('editFTitle').value;
+  m.cover = document.getElementById('editFImg').value;
+  m.rating = document.getElementById('editFRating').value;
+  m.awards = document.getElementById('editFAwards').value;
+  m.desc = document.getElementById('editFDesc').value;
+
+  localStorage.setItem('hoscar_movies', JSON.stringify(movies));
+  renderCatalog();
+  openMovieModal(m.id); // Atualiza os dados exibidos no modal do filme
+  window.closeModal('editMovieModal');
 };
 
 window.deleteCurrentMovie = () => {
