@@ -27,12 +27,13 @@ import {
 // ==========================================
 // Substitua pelas chaves reais do seu console do Firebase se necessário
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "seu-projeto.firebaseapp.com",
-  projectId: "seu-projeto-id",
-  storageBucket: "seu-projeto.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyC8JW1yI4SQxsj23HpIF3wX2pv9MdRdgVE",
+  authDomain: "hoscar-42f90.firebaseapp.com",
+  projectId: "hoscar-42f90",
+  storageBucket: "hoscar-42f90.firebasestorage.app",
+  messagingSenderId: "916853635964",
+  appId: "1:916853635964:web:d87e88a9c499969f5b82f9",
+  measurementId: "G-PXKFSZR7W5"
 };
 
 const app = initializeApp(firebaseConfig);
