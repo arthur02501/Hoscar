@@ -39,25 +39,30 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Usuário Admin do Sistema
 const ADMIN_EMAIL = "arthur@hoscar.local";
+let currentSelectedMovieId = null;
 
 // ==========================================
-// 3. AUTENTICAÇÃO (LOGIN E LOGOUT)
+// 3. AUTENTICAÇÃO E NAVEGAÇÃO
 // ==========================================
-async function fazerLogin(usuario, senha) {
+window.handleLogin = async function() {
+  const usuario = document.getElementById("loginUsername").value;
+  const senha = document.getElementById("loginPassword").value;
+
+  if (!usuario || !senha) return alert("Preencha usuário e senha!");
+
   try {
     const emailCompleto = usuario.includes("@") ? usuario : `${usuario}@hoscar.local`;
     await signInWithEmailAndPassword(auth, emailCompleto, senha);
     alert("Login realizado com sucesso!");
-    fecharModalLogin();
+    closeModal("loginModal");
   } catch (erro) {
     console.error("Erro no login:", erro);
-    alert("Erro ao fazer login. Verifique o usuário e a senha.");
+    alert("Erro ao fazer login. Verifique as credenciais.");
   }
-}
+};
 
-async function fazerLogout() {
+window.handleLogout = async function() {
   try {
     await signOut(auth);
     alert("Você saiu da conta.");
@@ -65,52 +70,40 @@ async function fazerLogout() {
   } catch (erro) {
     console.error("Erro ao sair:", erro);
   }
-}
+};
 
-// Observador do Estado de Autenticação
 onAuthStateChanged(auth, async (user) => {
+  const statusText = document.getElementById("userStatusText");
+  const loginBtn = document.getElementById("loginBtnNav");
+  const adminAddBtn = document.getElementById("adminAddMovieBtn");
+  const adminEditBtn = document.getElementById("adminEditBtn");
+
   if (user) {
-    console.log("Usuário logado:", user.email);
-    atualizarUIUsuarioLogado(user);
-    await carregarPerfilUsuario(user.uid);
+    if (statusText) statusText.innerText = user.email.split('@')[0];
+    if (loginBtn) {
+      loginBtn.innerText = "Sair";
+      loginBtn.onclick = window.handleLogout;
+    }
+    const eAdmin = user.email === ADMIN_EMAIL;
+    if (adminAddBtn) adminAddBtn.style.display = eAdmin ? "inline-block" : "none";
+    if (adminEditBtn) adminEditBtn.style.display = eAdmin ? "inline-block" : "none";
   } else {
-    console.log("Nenhum usuário logado.");
-    atualizarUIUsuarioDeslogado();
+    if (statusText) statusText.innerText = "Visitante";
+    if (loginBtn) {
+      loginBtn.innerText = "Entrar";
+      loginBtn.onclick = () => openModal("loginModal");
+    }
+    if (adminAddBtn) adminAddBtn.style.display = "none";
+    if (adminEditBtn) adminEditBtn.style.display = "none";
   }
-  // Garante o carregamento dos filmes tanto para logados quanto visitantes
   await carregarFilmes();
 });
 
 // ==========================================
-// 4. GERENCIAMENTO DE FILMES (ADMIN)
+// 4. GERENCIAMENTO DE FILMES
 // ==========================================
-
-// Adicionar Filme
-async function adicionarFilme(titulo, nota, capa, review) {
-  const user = auth.currentUser;
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return alert("Apenas o Admin pode adicionar filmes!");
-  }
-
-  try {
-    await addDoc(collection(db, "filmes"), {
-      titulo: titulo,
-      nota: parseFloat(nota) || 0,
-      capa: capa,
-      review: review,
-      criadoEm: new Date()
-    });
-    alert("Filme adicionado com sucesso!");
-    carregarFilmes();
-  } catch (erro) {
-    console.error("Erro ao adicionar filme:", erro);
-    alert("Erro ao salvar o filme.");
-  }
-}
-
-// Carregar e Exibir Lista de Filmes
 async function carregarFilmes() {
-  const container = document.getElementById("lista-filmes");
+  const container = document.getElementById("movieGrid");
   if (!container) return;
 
   container.innerHTML = "<p>Carregando filmes...</p>";
@@ -119,35 +112,31 @@ async function carregarFilmes() {
     const q = query(collection(db, "filmes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
     
-    container.innerHTML = ""; // Limpa o container
+    container.innerHTML = "";
 
     if (querySnapshot.empty) {
       container.innerHTML = "<p>Nenhum filme cadastrado ainda.</p>";
       return;
     }
 
-    const eAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
-
     querySnapshot.forEach((docSnap) => {
       const filme = docSnap.data();
       const id = docSnap.id;
 
       const card = document.createElement("div");
-      card.className = "card-filme";
+      card.className = "movie-card";
+      if (filme.capa) {
+        card.style.backgroundImage = `url('${filme.capa}')`;
+      }
+
       card.innerHTML = `
-        <img src="${filme.capa || 'img/default-cover.jpg'}" alt="${filme.titulo}" class="capa-filme">
-        <div class="info-filme">
-          <h3>${filme.titulo}</h3>
-          <span class="nota">★ ${filme.nota}/10</span>
-          <p class="review">${filme.review || ''}</p>
-          ${eAdmin ? `
-            <div class="acoes-admin">
-              <button onclick="prepararEdicaoFilme('${id}', '${encodeURIComponent(JSON.stringify(filme))}')">Editar</button>
-              <button onclick="excluirFilme('${id}')">Excluir</button>
-            </div>
-          ` : ''}
+        <div class="rating-badge">★ ${filme.nota || 0}/10</div>
+        <div class="movie-card-info">
+          <span class="marquee-text">${filme.titulo}</span>
         </div>
       `;
+
+      card.onclick = () => exibirDetalhesFilme(id, filme);
       container.appendChild(card);
     });
   } catch (erro) {
@@ -156,194 +145,103 @@ async function carregarFilmes() {
   }
 }
 
-// Editar Filme Existente
-async function editarFilme(filmeId, novoTitulo, novaNota, novaCapa, novaReview) {
+function exibirDetalhesFilme(id, filme) {
+  currentSelectedMovieId = id;
+  document.getElementById("mModalImg").src = filme.capa || "";
+  document.getElementById("mModalTitle").innerText = filme.titulo || "";
+  document.getElementById("mModalRating").innerText = filme.nota || "0";
+  document.getElementById("mModalAwards").innerText = filme.premios || "Nenhum";
+  document.getElementById("mModalDesc").innerText = filme.review || "Sem descrição.";
+
+  const mAdminActions = document.getElementById("mAdminActions");
+  const eAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
+  if (mAdminActions) mAdminActions.style.display = eAdmin ? "block" : "none";
+
+  openModal("movieModal");
+}
+
+window.saveMovie = async function() {
   const user = auth.currentUser;
   if (!user || user.email !== ADMIN_EMAIL) {
-    return alert("Apenas o Admin pode editar filmes!");
+    return alert("Apenas o Admin pode adicionar filmes!");
   }
+
+  const titulo = document.getElementById("fTitle").value;
+  const capa = document.getElementById("fImg").value;
+  const nota = parseFloat(document.getElementById("fRating").value) || 0;
+  const premios = document.getElementById("fAwards").value;
+  const review = document.getElementById("fDesc").value;
+
+  if (!titulo) return alert("Insira pelo menos o título do filme!");
 
   try {
-    const filmeRef = doc(db, "filmes", filmeId);
-    await updateDoc(filmeRef, {
-      titulo: novoTitulo,
-      nota: parseFloat(novaNota) || 0,
-      capa: novaCapa,
-      review: novaReview,
-      atualizadoEm: new Date()
+    await addDoc(collection(db, "filmes"), {
+      titulo,
+      capa,
+      nota,
+      premios,
+      review,
+      criadoEm: new Date()
     });
-
-    alert("Filme atualizado com sucesso!");
+    alert("Filme adicionado com sucesso!");
+    closeModal("addMovieModal");
     carregarFilmes();
   } catch (erro) {
-    console.error("Erro ao editar filme:", erro);
-    alert("Erro ao salvar as alterações do filme.");
+    console.error("Erro ao salvar filme:", erro);
+    alert("Erro ao salvar o filme.");
   }
-}
+};
 
-// Auxiliar para chamar prompt de edição do filme
-function prepararEdicaoFilme(id, dadosCodificados) {
-  const filme = JSON.parse(decodeURIComponent(dadosCodificados));
-  
-  const novoTitulo = prompt("Título do Filme:", filme.titulo);
-  if (novoTitulo === null) return;
-
-  const novaNota = prompt("Nota (0 a 10):", filme.nota);
-  if (novaNota === null) return;
-
-  const novaCapa = prompt("Caminho ou URL da Capa:", filme.capa);
-  if (novaCapa === null) return;
-
-  const novaReview = prompt("Sinopse / Review:", filme.review);
-  if (novaReview === null) return;
-
-  editarFilme(id, novoTitulo, novaNota, novaCapa, novaReview);
-}
-
-// Excluir Filme
-async function excluirFilme(filmeId) {
+window.deleteCurrentMovie = async function() {
+  if (!currentSelectedMovieId) return;
   const user = auth.currentUser;
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return alert("Apenas o Admin pode excluir filmes!");
-  }
+  if (!user || user.email !== ADMIN_EMAIL) return alert("Ação não permitida!");
 
   if (confirm("Tem certeza que deseja excluir este filme?")) {
     try {
-      await deleteDoc(doc(db, "filmes", filmeId));
+      await deleteDoc(doc(db, "filmes", currentSelectedMovieId));
       alert("Filme removido!");
+      closeModal("movieModal");
       carregarFilmes();
     } catch (erro) {
       console.error("Erro ao excluir filme:", erro);
       alert("Erro ao excluir filme.");
     }
   }
-}
+};
 
 // ==========================================
-// 5. GERENCIAMENTO DE PERFIL DO USUÁRIO
+// 5. CONTROLE DE MODAIS E INTERFACE
 // ==========================================
+window.openModal = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+};
 
-// Salvar / Editar Próprio Perfil
-async function salvarPerfilUsuario(nome, foto, bio) {
-  const user = auth.currentUser;
-  if (!user) return alert("Você precisa estar logado!");
+window.closeModal = function(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove("active");
+};
 
-  try {
-    const perfilRef = doc(db, "perfis", user.uid);
-    await setDoc(perfilRef, {
-      nome: nome,
-      foto: foto,
-      bio: bio,
-      email: user.email,
-      atualizadoEm: new Date()
-    }, { merge: true });
+window.openLoginModal = () => openModal("loginModal");
+window.openAddMovieModal = () => openModal("addMovieModal");
+window.openSecretModal = () => openModal("secretModal");
+window.openEditProfileModal = () => openModal("editProfileModal");
 
-    alert("Perfil atualizado com sucesso!");
-    await carregarPerfilUsuario(user.uid);
-  } catch (erro) {
-    console.error("Erro ao salvar perfil:", erro);
-    alert("Erro ao atualizar o perfil.");
-  }
-}
-
-// Carregar Dados do Perfil
-async function carregarPerfilUsuario(uid) {
-  try {
-    const perfilRef = doc(db, "perfis", uid);
-    const docSnap = await getDoc(perfilRef);
-
-    if (docSnap.exists()) {
-      const dados = docSnap.data();
-      
-      const elNome = document.getElementById("user-display-name");
-      const elFoto = document.getElementById("user-avatar");
-      const elBio = document.getElementById("user-bio");
-
-      if (elNome) elNome.innerText = dados.nome || "Usuário";
-      if (elFoto) elFoto.src = dados.foto || "img/default-avatar.png";
-      if (elBio) elBio.innerText = dados.bio || "Sem biografia cadastrada.";
-    }
-  } catch (erro) {
-    console.error("Erro ao carregar perfil:", erro);
-  }
-}
-
-// ==========================================
-// 6. FUNÇÕES AUXILIARES DE INTERFACE
-// ==========================================
-function atualizarUIUsuarioLogado(user) {
-  const btnLoginModal = document.getElementById("btn-abrir-login");
-  const btnLogout = document.getElementById("btn-logout");
-  const painelAdmin = document.getElementById("painel-admin");
-
-  if (btnLoginModal) btnLoginModal.style.display = "none";
-  if (btnLogout) btnLogout.style.display = "block";
-  
-  if (painelAdmin) {
-    painelAdmin.style.display = (user.email === ADMIN_EMAIL) ? "block" : "none";
-  }
-}
-
-function atualizarUIUsuarioDeslogado() {
-  const btnLoginModal = document.getElementById("btn-abrir-login");
-  const btnLogout = document.getElementById("btn-logout");
-  const painelAdmin = document.getElementById("painel-admin");
-
-  if (btnLoginModal) btnLoginModal.style.display = "block";
-  if (btnLogout) btnLogout.style.display = "none";
-  if (painelAdmin) painelAdmin.style.display = "none";
-}
-
-function fecharModalLogin() {
-  const modal = document.getElementById("login-modal");
-  if (modal) modal.style.display = "none";
-}
-
-// Ouvintes Automáticos dos Formulários
 document.addEventListener("DOMContentLoaded", () => {
-  // Formulário de Login
-  const loginForm = document.getElementById("login-form");
-  if (loginForm) {
-    loginForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const userVal = document.getElementById("username")?.value || document.getElementById("username-input")?.value;
-      const passVal = document.getElementById("password")?.value || document.getElementById("password-input")?.value;
-      if (userVal && passVal) fazerLogin(userVal, passVal);
-    });
-  }
+  const openNav = document.getElementById("openNav");
+  const navDrawer = document.getElementById("navDrawer");
+  const overlay = document.getElementById("overlay");
 
-  // Formulário de Adição de Filme (Admin)
-  const filmeForm = document.getElementById("form-adicionar-filme");
-  if (filmeForm) {
-    filmeForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const titulo = document.getElementById("filme-titulo")?.value;
-      const nota = document.getElementById("filme-nota")?.value;
-      const capa = document.getElementById("filme-capa")?.value;
-      const review = document.getElementById("filme-review")?.value;
-      if (titulo) adicionarFilme(titulo, nota, capa, review);
+  if (openNav && navDrawer && overlay) {
+    openNav.addEventListener("click", () => {
+      navDrawer.classList.toggle("active");
+      overlay.classList.toggle("active");
     });
-  }
 
-  // Botão de Salvar Perfil
-  const btnSalvarPerfil = document.getElementById("btn-salvar-perfil");
-  if (btnSalvarPerfil) {
-    btnSalvarPerfil.addEventListener("click", () => {
-      const nome = document.getElementById("edit-nome")?.value;
-      const foto = document.getElementById("edit-foto")?.value;
-      const bio = document.getElementById("edit-bio")?.value;
-      salvarPerfilUsuario(nome, foto, bio);
+    overlay.addEventListener("click", () => {
+      navDrawer.classList.remove("active");
+      overlay.classList.remove("active");
     });
   }
 });
-
-// ==========================================
-// 7. EXPOSIÇÃO GLOBAL DE FUNÇÕES
-// ==========================================
-window.fazerLogin = fazerLogin;
-window.fazerLogout = fazerLogout;
-window.adicionarFilme = adicionarFilme;
-window.editarFilme = editarFilme;
-window.prepararEdicaoFilme = prepararEdicaoFilme;
-window.excluirFilme = excluirFilme;
-window.salvarPerfilUsuario = salvarPerfilUsuario;
