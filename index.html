@@ -58,7 +58,8 @@
           <div class="meta-item"><strong>Nota:</strong> <span id="mModalRating"></span>/10</div>
           <div class="meta-item"><strong>Prêmios:</strong> <span id="mModalAwards"></span></div>
           <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
-          <div id="mAdminActions" style="margin-top:20px; display:none;">
+          <div id="mAdminActions" style="margin-top:20px; display:none; gap:10px;">
+            <button class="btn btn-secondary" onclick="openEditMovieModal()">✏️ Editar Filme</button>
             <button class="btn btn-secondary" onclick="deleteCurrentMovie()">Excluir Filme</button>
           </div>
         </div>
@@ -103,7 +104,7 @@
     </div>
   </div>
 
-  <!-- Modal Editar Perfil (Admin) -->
+  <!-- Modal Editar Perfil -->
   <div class="modal" id="editProfileModal">
     <div class="modal-content modal-pad">
       <span class="close-modal" onclick="closeModal('editProfileModal')">&times;</span>
@@ -113,7 +114,7 @@
         <input type="text" id="editName">
       </div>
       <div class="form-group">
-        <label>Foto (Cole o link direto da imagem ou ex: img/foto.jpg)</label>
+        <label>Foto (Link da Imagem)</label>
         <input type="text" id="editImg">
       </div>
       <div class="form-group">
@@ -134,7 +135,7 @@
         <input type="text" id="fTitle">
       </div>
       <div class="form-group">
-        <label>Link Direct da Capa (Vago no código para colar URLs)</label>
+        <label>Link Direct da Capa</label>
         <input type="text" id="fImg" placeholder="https://link-da-imagem.com/capa.jpg">
       </div>
       <div class="form-group">
@@ -150,6 +151,35 @@
         <textarea id="fDesc" rows="3"></textarea>
       </div>
       <button class="btn" onclick="saveMovie()">Salvar Filme</button>
+    </div>
+  </div>
+
+  <!-- Modal Editar Filme (Admin) -->
+  <div class="modal" id="editMovieModal">
+    <div class="modal-content modal-pad">
+      <span class="close-modal" onclick="closeModal('editMovieModal')">&times;</span>
+      <h3>Editar Filme</h3>
+      <div class="form-group">
+        <label>Título do Filme</label>
+        <input type="text" id="editFTitle">
+      </div>
+      <div class="form-group">
+        <label>Link Direct da Capa</label>
+        <input type="text" id="editFImg">
+      </div>
+      <div class="form-group">
+        <label>Nota (0 a 10)</label>
+        <input type="number" step="0.1" id="editFRating">
+      </div>
+      <div class="form-group">
+        <label>Prêmios</label>
+        <input type="text" id="editFAwards">
+      </div>
+      <div class="form-group">
+        <label>Descrição / Resumo</label>
+        <textarea id="editFDesc" rows="3"></textarea>
+      </div>
+      <button class="btn" onclick="saveMovieChanges()">Salvar Alterações no Filme</button>
     </div>
   </div>
 
