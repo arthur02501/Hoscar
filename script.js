@@ -14,9 +14,6 @@ import {
   addDoc, 
   getDocs, 
   doc, 
-  updateDoc, 
-  setDoc, 
-  getDoc, 
   deleteDoc,
   query,
   orderBy
@@ -43,7 +40,7 @@ const ADMIN_EMAIL = "arthur@hoscar.local";
 let currentSelectedMovieId = null;
 
 // ==========================================
-// 3. AUTENTICAÇÃO E NAVEGAÇÃO
+// 3. AUTENTICAÇÃO E CONTROLE DE INTERFACE
 // ==========================================
 window.handleLogin = async function() {
   const usuario = document.getElementById("loginUsername").value;
@@ -75,8 +72,7 @@ window.handleLogout = async function() {
 onAuthStateChanged(auth, async (user) => {
   const statusText = document.getElementById("userStatusText");
   const loginBtn = document.getElementById("loginBtnNav");
-  const adminAddBtn = document.getElementById("adminAddMovieBtn");
-  const adminEditBtn = document.getElementById("adminEditBtn");
+  const globalAddBtn = document.getElementById("globalAddMovieBtn");
 
   if (user) {
     if (statusText) statusText.innerText = user.email.split('@')[0];
@@ -84,38 +80,117 @@ onAuthStateChanged(auth, async (user) => {
       loginBtn.innerText = "Sair";
       loginBtn.onclick = window.handleLogout;
     }
+    
+    // Exibe botão global de adicionar filme se for Admin
     const eAdmin = user.email === ADMIN_EMAIL;
-    if (adminAddBtn) adminAddBtn.style.display = eAdmin ? "inline-block" : "none";
-    if (adminEditBtn) adminEditBtn.style.display = eAdmin ? "inline-block" : "none";
+    if (globalAddBtn) globalAddBtn.style.display = eAdmin ? "inline-block" : "none";
   } else {
     if (statusText) statusText.innerText = "Visitante";
     if (loginBtn) {
       loginBtn.innerText = "Entrar";
       loginBtn.onclick = () => openModal("loginModal");
     }
-    if (adminAddBtn) adminAddBtn.style.display = "none";
-    if (adminEditBtn) adminEditBtn.style.display = "none";
+    if (globalAddBtn) globalAddBtn.style.display = "none";
   }
+  
+  await carregarPerfis();
   await carregarFilmes();
 });
 
 // ==========================================
-// 4. GERENCIAMENTO DE FILMES
+// 4. GERENCIAMENTO DE PERFIS / MEMBROS
+// ==========================================
+async function carregarPerfis() {
+  const profileList = document.getElementById("profileList");
+  if (!profileList) return;
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "perfis"));
+    profileList.innerHTML = "";
+
+    // Se o banco de perfis estiver limpo, cria automaticamente os perfis padrões
+    if (querySnapshot.empty) {
+      console.log("Criando lista de membros inicial no banco...");
+      await criarPerfisIniciais();
+      return;
+    }
+
+    let primeiroPerfil = null;
+    querySnapshot.forEach((docSnap) => {
+      const perfil = docSnap.data();
+      const id = docSnap.id;
+      if (!primeiroPerfil) primeiroPerfil = { id, perfil };
+
+      const li = document.createElement("li");
+      li.style.cursor = "pointer";
+      li.style.padding = "10px 15px";
+      li.style.borderBottom = "1px solid rgba(255,255,255,0.1)";
+      li.style.color = "#fff";
+      li.innerText = perfil.nome || "Membro";
+      
+      li.onclick = () => selecionarPerfil(perfil);
+      profileList.appendChild(li);
+    });
+
+    // Seleciona o primeiro perfil por padrão para preencher o cabeçalho
+    if (primeiroPerfil) {
+      selecionarPerfil(primeiroPerfil.perfil);
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar perfis:", erro);
+  }
+}
+
+async function criarPerfisIniciais() {
+  const perfisPadrao = [
+    { nome: "Arthur", desc: "Admin e Organizador do Hoscar", img: "" },
+    { nome: "Membro 1", desc: "Avaliador de Filmes", img: "" }
+  ];
+
+  for (const p of perfisPadrao) {
+    await addDoc(collection(db, "perfis"), p);
+  }
+  await carregarPerfis();
+}
+
+function selecionarPerfil(perfil) {
+  const pName = document.getElementById("pName");
+  const pDesc = document.getElementById("pDesc");
+  const pImg = document.getElementById("pImg");
+
+  if (pName) pName.innerText = perfil.nome || "Membro";
+  if (pDesc) pDesc.innerText = perfil.desc || "Sem descrição disponível.";
+  if (pImg) {
+    if (perfil.img) {
+      pImg.src = perfil.img;
+      pImg.style.display = "block";
+    } else {
+      pImg.style.display = "none";
+    }
+  }
+
+  // Fecha o menu lateral no mobile
+  const navDrawer = document.getElementById("navDrawer");
+  const overlay = document.getElementById("overlay");
+  if (navDrawer) navDrawer.classList.remove("active");
+  if (overlay) overlay.classList.remove("active");
+}
+
+// ==========================================
+// 5. GERENCIAMENTO DE FILMES
 // ==========================================
 async function carregarFilmes() {
   const container = document.getElementById("movieGrid");
   if (!container) return;
 
-  container.innerHTML = "<p>Carregando filmes...</p>";
+  container.innerHTML = "<p style='color:#fff;'>Carregando filmes...</p>";
 
   try {
-    const q = query(collection(db, "filmes"), orderBy("criadoEm", "desc"));
-    const querySnapshot = await getDocs(q);
-    
+    const querySnapshot = await getDocs(collection(db, "filmes"));
     container.innerHTML = "";
 
     if (querySnapshot.empty) {
-      container.innerHTML = "<p>Nenhum filme cadastrado ainda.</p>";
+      container.innerHTML = "<p style='color:#fff; grid-column: 1/-1;'>Nenhum filme cadastrado ainda no catálogo.</p>";
       return;
     }
 
@@ -141,7 +216,7 @@ async function carregarFilmes() {
     });
   } catch (erro) {
     console.error("Erro ao carregar filmes:", erro);
-    container.innerHTML = "<p>Erro ao carregar os filmes.</p>";
+    container.innerHTML = "<p style='color:red;'>Erro ao carregar os filmes.</p>";
   }
 }
 
@@ -185,7 +260,15 @@ window.saveMovie = async function() {
     });
     alert("Filme adicionado com sucesso!");
     closeModal("addMovieModal");
-    carregarFilmes();
+    
+    // Limpa os campos do formulário
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fImg").value = "";
+    document.getElementById("fRating").value = "";
+    document.getElementById("fAwards").value = "";
+    document.getElementById("fDesc").value = "";
+
+    await carregarFilmes();
   } catch (erro) {
     console.error("Erro ao salvar filme:", erro);
     alert("Erro ao salvar o filme.");
@@ -202,7 +285,7 @@ window.deleteCurrentMovie = async function() {
       await deleteDoc(doc(db, "filmes", currentSelectedMovieId));
       alert("Filme removido!");
       closeModal("movieModal");
-      carregarFilmes();
+      await carregarFilmes();
     } catch (erro) {
       console.error("Erro ao excluir filme:", erro);
       alert("Erro ao excluir filme.");
@@ -211,7 +294,7 @@ window.deleteCurrentMovie = async function() {
 };
 
 // ==========================================
-// 5. CONTROLE DE MODAIS E INTERFACE
+// 6. CONTROLE DE MODAIS E INTERFACE
 // ==========================================
 window.openModal = function(id) {
   const el = document.getElementById(id);
@@ -226,7 +309,6 @@ window.closeModal = function(id) {
 window.openLoginModal = () => openModal("loginModal");
 window.openAddMovieModal = () => openModal("addMovieModal");
 window.openSecretModal = () => openModal("secretModal");
-window.openEditProfileModal = () => openModal("editProfileModal");
 
 document.addEventListener("DOMContentLoaded", () => {
   const openNav = document.getElementById("openNav");
