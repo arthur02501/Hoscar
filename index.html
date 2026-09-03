@@ -8,12 +8,11 @@
 </head>
 <body>
 
-  <!-- Topo da Página -->
+  <!-- Topo -->
   <header>
     <button class="hamburger" id="openNav">&#9776;</button>
     <div class="brand">Hoscar</div>
     <div class="user-status-area">
-      <button class="btn" id="globalAddMovieBtn" style="display:none; margin-right: 10px;" onclick="openAddMovieModal()">+ Filme</button>
       <span id="userStatusText">Visitante</span>
       <button class="btn btn-login-top" id="loginBtnNav" onclick="openLoginModal()">Entrar</button>
     </div>
@@ -21,21 +20,23 @@
 
   <div class="overlay" id="overlay"></div>
 
-  <!-- Menu Lateral de Membros/Perfis -->
+  <!-- Menu Hambúrguer (Amarelo) -->
   <nav class="nav-drawer" id="navDrawer">
-    <h3 style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); margin: 0;">Membros</h3>
-    <ul id="profileList" style="list-style: none; padding: 0; margin: 0;"></ul>
+    <h3>Perfis</h3>
+    <ul id="profileList"></ul>
   </nav>
 
   <div class="container">
     <!-- Perfil Selecionado -->
     <div class="profile-header" id="profileHeader">
-      <img src="" id="pImg" class="profile-avatar" alt="Foto do perfil" style="display:none;">
-      <div class="profile-name" id="pName">Carregando...</div>
+      <img src="" id="pImg" class="profile-avatar" alt="Foto do perfil">
+      <div class="profile-name" id="pName"></div>
       <div class="profile-desc" id="pDesc"></div>
       
-      <div class="profile-actions" style="margin-top: 15px;">
-        <button class="btn btn-secondary" onclick="openSecretModal()">🔒 Reviews</button>
+      <div class="profile-actions">
+        <button class="btn btn-secondary" onclick="openSecretModal()">🔒 Reviews Secreta</button>
+        <button class="btn btn-secondary" id="adminEditBtn" style="display:none;" onclick="openEditProfileModal()">✏️ Editar Perfil</button>
+        <button class="btn" id="adminAddMovieBtn" style="display:none;" onclick="openAddMovieModal()">+ Adicionar Filme</button>
       </div>
     </div>
 
@@ -72,7 +73,7 @@
       <h3>Login de Usuário</h3>
       <div class="form-group">
         <label>Usuário</label>
-        <input type="text" id="loginUsername" placeholder="Ex: arthur">
+        <input type="text" id="loginUsername" placeholder="Ex: dudu, alice, edu...">
       </div>
       <div class="form-group">
         <label>Senha</label>
@@ -89,7 +90,37 @@
       <h3>Caixa Secreta de Reviews</h3>
       <div id="secretContentArea">
         <div class="secret-box-text" id="secretText">Aguardando login...</div>
+        
+        <div id="adminSecretEdit" style="display: none; margin-top: 15px;">
+          <hr style="border-color:#333; margin: 15px 0;">
+          <h4 style="color:var(--accent-yellow);">Admin: Escrever/Editar Review</h4>
+          <div class="form-group" style="margin-top:8px;">
+            <textarea id="adminSecretInput" rows="4" placeholder="Escreva a review para este amigo..."></textarea>
+          </div>
+          <button class="btn" onclick="saveSecretReview()">Salvar na Nuvem</button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Perfil (Admin) -->
+  <div class="modal" id="editProfileModal">
+    <div class="modal-content modal-pad">
+      <span class="close-modal" onclick="closeModal('editProfileModal')">&times;</span>
+      <h3>Editar Perfil</h3>
+      <div class="form-group">
+        <label>Nome do Amigo</label>
+        <input type="text" id="editName">
+      </div>
+      <div class="form-group">
+        <label>Foto (Cole o link direto da imagem ou ex: img/foto.jpg)</label>
+        <input type="text" id="editImg">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea id="editDesc" rows="3"></textarea>
+      </div>
+      <button class="btn" onclick="saveProfileChanges()">Salvar Alterações</button>
     </div>
   </div>
 
@@ -103,7 +134,7 @@
         <input type="text" id="fTitle">
       </div>
       <div class="form-group">
-        <label>Link Direto da Capa</label>
+        <label>Link Direct da Capa (Vago no código para colar URLs)</label>
         <input type="text" id="fImg" placeholder="https://link-da-imagem.com/capa.jpg">
       </div>
       <div class="form-group">
