@@ -60,7 +60,7 @@ onAuthStateChanged(auth, (user) => {
   const userStatusText = document.getElementById('userStatusText');
   
   if (user) {
-    loggedUsername = user.email.replace('@hoscar.local', '');
+    loggedUsername = user.email.replace('@hoscar.local', '').trim().toLowerCase();
     isAdmin = (loggedUsername === "arthur"); // Apenas o Arthur é Admin
 
     userStatusText.textContent = `Olá, ${loggedUsername}!`;
@@ -116,8 +116,10 @@ function selectView(id) {
     catalogTitle.textContent = `Filmes Exclusivos de ${p.name}`;
   }
 
-  // Permissão de edição do perfil: Permite se for o Admin OU se for o próprio usuário dono do perfil
-  const canEditProfile = isAdmin || (loggedUsername && loggedUsername === id);
+  // Comparação sem diferenciar maiúsculas e minúsculas
+  const isOwner = loggedUsername && (loggedUsername === id.trim().toLowerCase());
+  const canEditProfile = isAdmin || isOwner;
+
   document.getElementById('adminEditBtn').style.display = (canEditProfile && id !== 'catalogo_geral') ? 'inline-block' : 'none';
   
   // Apenas Admin adiciona filmes
@@ -185,7 +187,7 @@ window.openSecretModal = async function() {
 
   const targetProfileId = (currentSelection === 'catalogo_geral') ? 'geral' : currentSelection;
 
-  if (!isAdmin && loggedUsername !== targetProfileId) {
+  if (!isAdmin && loggedUsername !== targetProfileId.trim().toLowerCase()) {
     alert("Você só tem acesso à sua própria caixa secreta!");
     return;
   }
@@ -320,7 +322,7 @@ window.saveMovieChanges = () => {
 
   localStorage.setItem('hoscar_movies', JSON.stringify(movies));
   renderCatalog();
-  openMovieModal(m.id); // Atualiza os dados exibidos no modal do filme
+  openMovieModal(m.id);
   window.closeModal('editMovieModal');
 };
 
