@@ -20,7 +20,7 @@
 
   <div class="overlay" id="overlay"></div>
 
-  <!-- Menu Hambúrguer (Amarelo) -->
+  <!-- Menu Hambúrguer -->
   <nav class="nav-drawer" id="navDrawer">
     <h3>Perfis</h3>
     <ul id="profileList"></ul>
@@ -60,7 +60,6 @@
           <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
           <div id="mAdminActions" style="margin-top:20px; display:none;">
             <button class="btn btn-secondary" onclick="deleteCurrentMovie()">Excluir Filme</button>
-            <button onclick="editarFilme('${filme.id}', ${JSON.stringify(filme).replace(/"/g, '&quot;')})">Editar</button>
           </div>
         </div>
       </div>
@@ -74,7 +73,7 @@
       <h3>Login de Usuário</h3>
       <div class="form-group">
         <label>Usuário</label>
-        <input type="text" id="loginUsername" placeholder="Ex: dudu, alice, edu...">
+        <input type="text" id="loginUsername" placeholder="Ex: arthur">
       </div>
       <div class="form-group">
         <label>Senha</label>
@@ -91,15 +90,6 @@
       <h3>Caixa Secreta de Reviews</h3>
       <div id="secretContentArea">
         <div class="secret-box-text" id="secretText">Aguardando login...</div>
-        
-        <div id="adminSecretEdit" style="display: none; margin-top: 15px;">
-          <hr style="border-color:#333; margin: 15px 0;">
-          <h4 style="color:var(--accent-yellow);">Admin: Escrever/Editar Review</h4>
-          <div class="form-group" style="margin-top:8px;">
-            <textarea id="adminSecretInput" rows="4" placeholder="Escreva a review para este amigo..."></textarea>
-          </div>
-          <button class="btn" onclick="saveSecretReview()">Salvar na Nuvem</button>
-        </div>
       </div>
     </div>
   </div>
@@ -114,14 +104,14 @@
         <input type="text" id="editName">
       </div>
       <div class="form-group">
-        <label>Foto (Cole o link direto da imagem ou ex: img/foto.jpg)</label>
+        <label>Foto (URL)</label>
         <input type="text" id="editImg">
       </div>
       <div class="form-group">
         <label>Descrição</label>
         <textarea id="editDesc" rows="3"></textarea>
       </div>
-      <button class="btn" onclick="saveProfileChanges()">Salvar Alterações</button>
+      <button class="btn">Salvar Alterações</button>
     </div>
   </div>
 
@@ -135,7 +125,7 @@
         <input type="text" id="fTitle">
       </div>
       <div class="form-group">
-        <label>Link Direct da Capa (Vago no código para colar URLs)</label>
+        <label>Link Direto da Capa</label>
         <input type="text" id="fImg" placeholder="https://link-da-imagem.com/capa.jpg">
       </div>
       <div class="form-group">
