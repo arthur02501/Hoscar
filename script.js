@@ -25,7 +25,6 @@ import {
 // ==========================================
 // 2. CONFIGURAÇÃO DO FIREBASE
 // ==========================================
-// Substitua pelas chaves reais do seu console do Firebase se necessário
 const firebaseConfig = {
   apiKey: "AIzaSyC8JW1yI4SQxsj23HpIF3wX2pv9MdRdgVE",
   authDomain: "hoscar-42f90.firebaseapp.com",
@@ -48,7 +47,6 @@ const ADMIN_EMAIL = "arthur@hoscar.local";
 // ==========================================
 async function fazerLogin(usuario, senha) {
   try {
-    // Adiciona o sufixo automaticamente se o usuário digitar apenas o apelido
     const emailCompleto = usuario.includes("@") ? usuario : `${usuario}@hoscar.local`;
     await signInWithEmailAndPassword(auth, emailCompleto, senha);
     alert("Login realizado com sucesso!");
@@ -69,17 +67,18 @@ async function fazerLogout() {
   }
 }
 
-// Observador de Estado de Autenticação
+// Observador do Estado de Autenticação
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("Usuário logado:", user.email);
     atualizarUIUsuarioLogado(user);
     await carregarPerfilUsuario(user.uid);
-    await carregarFilmes();
   } else {
     console.log("Nenhum usuário logado.");
     atualizarUIUsuarioDeslogado();
   }
+  // Garante o carregamento dos filmes tanto para logados quanto visitantes
+  await carregarFilmes();
 });
 
 // ==========================================
@@ -133,7 +132,6 @@ async function carregarFilmes() {
       const filme = docSnap.data();
       const id = docSnap.id;
 
-      // Criação do card do filme no HTML
       const card = document.createElement("div");
       card.className = "card-filme";
       card.innerHTML = `
@@ -183,7 +181,7 @@ async function editarFilme(filmeId, novoTitulo, novaNota, novaCapa, novaReview) 
   }
 }
 
-// Auxiliar para chamar prompt de edição rápida do filme
+// Auxiliar para chamar prompt de edição do filme
 function prepararEdicaoFilme(id, dadosCodificados) {
   const filme = JSON.parse(decodeURIComponent(dadosCodificados));
   
@@ -281,7 +279,6 @@ function atualizarUIUsuarioLogado(user) {
   if (btnLoginModal) btnLoginModal.style.display = "none";
   if (btnLogout) btnLogout.style.display = "block";
   
-  // Exibe painel administrativo se for o email do Arthur
   if (painelAdmin) {
     painelAdmin.style.display = (user.email === ADMIN_EMAIL) ? "block" : "none";
   }
@@ -302,8 +299,46 @@ function fecharModalLogin() {
   if (modal) modal.style.display = "none";
 }
 
+// Ouvintes Automáticos dos Formulários
+document.addEventListener("DOMContentLoaded", () => {
+  // Formulário de Login
+  const loginForm = document.getElementById("login-form");
+  if (loginForm) {
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const userVal = document.getElementById("username")?.value || document.getElementById("username-input")?.value;
+      const passVal = document.getElementById("password")?.value || document.getElementById("password-input")?.value;
+      if (userVal && passVal) fazerLogin(userVal, passVal);
+    });
+  }
+
+  // Formulário de Adição de Filme (Admin)
+  const filmeForm = document.getElementById("form-adicionar-filme");
+  if (filmeForm) {
+    filmeForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const titulo = document.getElementById("filme-titulo")?.value;
+      const nota = document.getElementById("filme-nota")?.value;
+      const capa = document.getElementById("filme-capa")?.value;
+      const review = document.getElementById("filme-review")?.value;
+      if (titulo) adicionarFilme(titulo, nota, capa, review);
+    });
+  }
+
+  // Botão de Salvar Perfil
+  const btnSalvarPerfil = document.getElementById("btn-salvar-perfil");
+  if (btnSalvarPerfil) {
+    btnSalvarPerfil.addEventListener("click", () => {
+      const nome = document.getElementById("edit-nome")?.value;
+      const foto = document.getElementById("edit-foto")?.value;
+      const bio = document.getElementById("edit-bio")?.value;
+      salvarPerfilUsuario(nome, foto, bio);
+    });
+  }
+});
+
 // ==========================================
-// 7. EXPOSIÇÃO GLOBAL DE FUNÇÕES (MÓDULO HTML)
+// 7. EXPOSIÇÃO GLOBAL DE FUNÇÕES
 // ==========================================
 window.fazerLogin = fazerLogin;
 window.fazerLogout = fazerLogout;
