@@ -130,34 +130,47 @@ header {
 }
 
 /* Texto por padrão fica parado */
+/* 1. Garanta que o contêiner do título no JS/HTML corte o texto que vaza */
+.movie-title, .card-title, .movie-card h3 {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* 2. Configuração do texto em marquee (Inicia VISÍVEL e parado) */
 .marquee-text { 
   display: inline-block; 
+  white-space: nowrap;
   animation: marquee 8s linear infinite; 
-  animation-play-state: paused;
+  animation-play-state: paused; /* Fica parado por padrão */
 }
 
-/* Roda a animação quando o mouse passa no card */
-.card:hover .marquee-text { 
-  animation-play-state: running;
+/* 3. Ativa a animação no Hover (inclui seletores comuns de cards e o próprio texto) */
+.movie-card:hover .marquee-text,
+.card:hover .marquee-text,
+.grid > div:hover .marquee-text,
+.marquee-text:hover { 
+  animation-play-state: running; /* Roda no hover */
 }
 
+/* 4. Animação fluida e contínua */
 @keyframes marquee { 
-  /* 0% a 15%: Fica parado no centro para leitura inicial */
+  /* 0% a 15%: Fica parado no centro para o usuário conseguir ler */
   0%, 15% { 
     transform: translateX(0%); 
   } 
   
-  /* 65%: Sai completamente pela esquerda */
+  /* 65%: Desliza suavemente até sair 105% pela esquerda */
   65% { 
     transform: translateX(-105%); 
   }
   
-  /* 65.01%: Teleporta instantaneamente para fora do card na DIREITA sem piscar */
+  /* 65.01%: Teleporta instantaneamente para a direita fora da visão */
   65.01% { 
     transform: translateX(105%); 
   }
   
-  /* 100%: Entra vindo da direita até voltar à posição original */
+  /* 100%: Entra vindo da direita e volta à posição original */
   100% { 
     transform: translateX(0%); 
   } 
