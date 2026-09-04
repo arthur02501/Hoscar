@@ -123,8 +123,14 @@ header {
 }
 
 /* Loop Infinito de Título Longo (Marquee) */
-.marquee-text { display: inline-block; animation: marquee 8s linear infinite; }
-@keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+.marquee-text { 
+  display: inline-block; 
+  animation: marquee 8s linear infinite; 
+}
+@keyframes marquee { 
+  0% 20%{ transform: translateX(0%); }          /* Começa exatamente onde o texto está */
+  100% { transform: translateX(-100%); }      /* Vai até sair totalmente pela esquerda */
+}
 
 /* Modais */
 .modal {
