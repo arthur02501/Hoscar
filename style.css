@@ -126,6 +126,10 @@ header {
 .marquee-text { 
   display: inline-block; 
   animation: marquee 10s linear infinite; 
+  animation-play-state: paused;
+}
+.card:hover .marquee-text { 
+  animation-play-state: running; /* <- Roda só no hover */
 }
 @keyframes marquee { 
   0% { 
