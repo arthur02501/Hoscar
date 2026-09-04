@@ -81,12 +81,22 @@ async function loadProfilesFromCloud() {
     const docRef = doc(db, "app_data", "profiles");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      profiles = docSnap.data().list;
-      renderNav();
+      const cloudProfiles = docSnap.data().list || [];
+      
+      // Junta a lista defaultProfiles do JS com os perfis do banco
+      const profileMap = new Map();
+      defaultProfiles.forEach(p => profileMap.set(p.id, p));
+      cloudProfiles.forEach(p => profileMap.set(p.id, p));
+      
+      profiles = Array.from(profileMap.values());
     }
   } catch (e) {
     console.log("Usando lista padrão de perfis.");
+    profiles = defaultProfiles;
   }
+  
+  // Renderiza a lista no menu hambúrguer com todas as opções
+  renderNav();
 }
 
 async function loadMoviesFromCloud() {
