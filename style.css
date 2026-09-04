@@ -128,8 +128,23 @@ header {
   animation: marquee 8s linear infinite; 
 }
 @keyframes marquee { 
-  0%, 25%{ transform: translateX(2%); }          /* Começa 2% antes de onde o texto está e da uma leve pausa em 25% */
-  100% { transform: translateX(-100%); }      /* Vai até sair 100% pela esquerda */
+  /* DO SEGUNDO 0 AO SEGUNDO 1,2 (0% a 15% do tempo): */
+  /* Mantém o texto parado 8% recuado para a direita */
+  0%, 15% { 
+    transform: translateX(2.5%); 
+  } 
+
+  /* DO SEGUNDO 1,2 AO SEGUNDO 6,8 (15% a 85% do tempo): */
+  /* O texto desliza continuamente até sumir (-100% à esquerda) */
+  85% { 
+    transform: translateX(-100%); 
+  }
+
+  /* DO SEGUNDO 6,8 AO SEGUNDO 8,0 (85% a 100% do tempo): */
+  /* O texto fica parado no -100% (fora da tela) criando a pausa final */
+  100% { 
+    transform: translateX(-100%); 
+  } 
 }
 
 /* Modais */
