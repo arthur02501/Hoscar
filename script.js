@@ -145,7 +145,7 @@ function selectView(id) {
 
   if (id === 'catalogo_geral') {
     pHeader.classList.remove('active');
-    catalogTitle.textContent = "Catálogo Geral (Todos os Filmes do Grupo)";
+    catalogTitle.textContent = "Catálogo Geral";
   } else {
     const p = profiles.find(item => item.id === id);
     if (p) {
@@ -254,13 +254,13 @@ window.openSecretModal = async function() {
   const targetProfileId = (currentSelection === 'catalogo_geral') ? 'geral' : currentSelection;
 
   if (!isAdmin && loggedUsername !== targetProfileId.trim().toLowerCase()) {
-    alert("Você só tem acesso à sua própria caixa secreta!");
+    alert("Você só tem acesso à sua própria caixa!");
     return;
   }
 
   window.openModal('secretModal');
   const secretText = document.getElementById('secretText');
-  secretText.textContent = "Carregando review secreta...";
+  secretText.textContent = "Carregando review...";
 
   try {
     const docRef = doc(db, "secret_reviews", targetProfileId);
@@ -269,7 +269,7 @@ window.openSecretModal = async function() {
     if (docSnap.exists()) {
       secretText.textContent = docSnap.data().review;
     } else {
-      secretText.textContent = "Nenhuma review secreta registrada para este perfil ainda.";
+      secretText.textContent = "Nenhuma review registrada para este perfil ainda.";
     }
   } catch (e) {
     secretText.textContent = "Erro de permissão no servidor.";
@@ -290,7 +290,7 @@ window.saveSecretReview = async function() {
       review: text,
       updatedAt: new Date()
     });
-    alert("Review secreta salva com sucesso!");
+    alert("Review salva com sucesso!");
     window.openSecretModal();
   } catch (e) {
     alert("Erro ao salvar no banco de dados.");
