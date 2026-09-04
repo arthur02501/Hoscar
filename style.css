@@ -164,27 +164,62 @@ header {
   border-left: 3px solid var(--accent-yellow); margin-top: 10px; white-space: pre-wrap; font-family: monospace;
 }
 
+/* Container de Ordenação */
 .sort-container {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
-  margin: 15px 0;
-  color: var(--text-color, #fff);
-  font-size: 0.9rem;
+  gap: 10px;
+  margin: 15px 0 25px 0;
+  font-family: inherit;
 }
 
+.sort-container label {
+  color: var(--text-dim, #aaaaaa);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Dropdown/Select Estilizado */
 .sort-container select {
-  background-color: #1a1a1a;
+  background-color: #141414;
   color: #ffd700;
-  border: 1px solid #333;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  border: 1px solid #333333;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
   cursor: pointer;
   outline: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px;
+  padding-right: 34px;
 }
 
+/* Efeito ao passar o mouse e ao clicar */
 .sort-container select:hover {
   border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.sort-container select:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Estilo das opções internas */
+.sort-container select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 10px;
 }
