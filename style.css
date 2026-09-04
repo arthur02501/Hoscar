@@ -128,15 +128,26 @@ header {
   animation: marquee 10s linear infinite; 
   animation-play-state: paused;
 }
+
 .card:hover .marquee-text { 
-  animation-play-state: running; /* <- Roda só no hover */
+  animation-play-state: running;
 }
+
 @keyframes marquee { 
-  0% { 
-    transform: translateX(100%);  /* Começa totalmente do lado DIREITO (fora do card) */
+  /* Fica parado visível no início */
+  0%, 15% { 
+    transform: translateX(0%); 
   } 
+  /* Desliza até sair totalmente pela esquerda */
+  80% { 
+    transform: translateX(-105%); 
+  }
+  /* Teleporta instantaneamente para a direita e entra de novo */
+  80.01% {
+    transform: translateX(100%);
+  }
   100% { 
-    transform: translateX(-105%); /* Vai até sair totalmente pelo lado ESQUERDO */
+    transform: translateX(0%); 
   } 
 }
 
