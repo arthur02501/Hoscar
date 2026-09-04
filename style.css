@@ -123,29 +123,41 @@ header {
 }
 
 /* Loop Infinito de Título Longo (Marquee) */
+/* Container que esconde o excesso do texto */
+.card-title-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Texto por padrão fica parado */
 .marquee-text { 
   display: inline-block; 
-  animation: marquee 10s linear infinite; 
+  animation: marquee 8s linear infinite; 
   animation-play-state: paused;
 }
 
+/* Roda a animação quando o mouse passa no card */
 .card:hover .marquee-text { 
   animation-play-state: running;
 }
 
 @keyframes marquee { 
-  /* Fica parado visível no início */
+  /* 0% a 15%: Fica parado no centro para leitura inicial */
   0%, 15% { 
     transform: translateX(0%); 
   } 
-  /* Desliza até sair totalmente pela esquerda */
-  80% { 
+  
+  /* 65%: Sai completamente pela esquerda */
+  65% { 
     transform: translateX(-105%); 
   }
-  /* Teleporta instantaneamente para a direita e entra de novo */
-  80.01% {
-    transform: translateX(100%);
+  
+  /* 65.01%: Teleporta instantaneamente para fora do card na DIREITA sem piscar */
+  65.01% { 
+    transform: translateX(105%); 
   }
+  
+  /* 100%: Entra vindo da direita até voltar à posição original */
   100% { 
     transform: translateX(0%); 
   } 
