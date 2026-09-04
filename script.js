@@ -35,17 +35,7 @@ const defaultProfiles = [
 ];
 
 let profiles = defaultProfiles;
-let movies = JSON.parse(localStorage.getItem('hoscar_movies')) || [
-  {
-    id: '1',
-    profileId: 'arthur',
-    title: 'Exemplo de Filme Com Titulo Bastante Longo Para Demonstrar o Loop Infinito',
-    cover: '', 
-    rating: '9.5',
-    awards: 'Prêmio Hoscar de Melhor Filme',
-    desc: 'Descrição de exemplo do filme.'
-  }
-];
+let movies = [];
 
 let currentSelection = 'catalogo_geral'; 
 let selectedMovieId = null;
@@ -79,10 +69,11 @@ onAuthStateChanged(auth, (user) => {
 async function init() {
   renderNav();
   await loadProfilesFromCloud();
+  await loadMoviesFromCloud();
   selectView('catalogo_geral');
 }
 
-// Carrega perfis diretamente da Nuvem (Firebase)
+// Carrega perfis e filmes da nuvem (Firebase)
 async function loadProfilesFromCloud() {
   try {
     const docRef = doc(db, "app_data", "profiles");
@@ -93,6 +84,28 @@ async function loadProfilesFromCloud() {
     }
   } catch (e) {
     console.log("Usando lista padrão de perfis.");
+  }
+}
+
+async function loadMoviesFromCloud() {
+  try {
+    const docRef = doc(db, "app_data", "movies");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      movies = docSnap.data().list;
+      renderCatalog();
+    }
+  } catch (e) {
+    console.log("Erro ao carregar filmes da nuvem.");
+  }
+}
+
+// Salva lista de filmes na nuvem
+async function saveMoviesToCloud() {
+  try {
+    await setDoc(doc(db, "app_data", "movies"), { list: movies });
+  } catch (e) {
+    alert("Erro ao sincronizar filmes na nuvem: " + e.message);
   }
 }
 
@@ -117,7 +130,7 @@ function renderNav() {
 function selectView(id) {
   currentSelection = id;
   const pHeader = document.getElementById('profileHeader');
-  catalogTitle = document.getElementById('catalogTitle');
+  const catalogTitle = document.getElementById('catalogTitle');
 
   if (id === 'catalogo_geral') {
     pHeader.classList.remove('active');
@@ -133,7 +146,6 @@ function selectView(id) {
     }
   }
 
-  // Verifica se o usuário logado é o dono do perfil ou Admin
   const isOwner = loggedUsername && (loggedUsername === id.trim().toLowerCase());
   const canEditProfile = isAdmin || isOwner;
 
@@ -269,7 +281,6 @@ window.saveProfileChanges = async () => {
   p.desc = document.getElementById('editDesc').value;
   
   try {
-    // Salva na nuvem para atualizar para todo mundo
     await setDoc(doc(db, "app_data", "profiles"), { list: profiles });
     alert("Perfil atualizado com sucesso para todos!");
     renderNav();
@@ -280,10 +291,10 @@ window.saveProfileChanges = async () => {
   }
 };
 
-// ADICIONAR E EDITAR FILME (ADMIN)
+// ADICIONAR E EDITAR FILMES NA NUVEM (GLOBAL)
 window.openAddMovieModal = () => window.openModal('addMovieModal');
 
-window.saveMovie = () => {
+window.saveMovie = async () => {
   const movieProfileOwner = (currentSelection === 'catalogo_geral') ? 'arthur' : currentSelection;
 
   const newMovie = {
@@ -295,8 +306,9 @@ window.saveMovie = () => {
     awards: document.getElementById('fAwards').value,
     desc: document.getElementById('fDesc').value
   };
+  
   movies.push(newMovie);
-  localStorage.setItem('hoscar_movies', JSON.stringify(movies));
+  await saveMoviesToCloud();
   renderCatalog();
   window.closeModal('addMovieModal');
 };
@@ -328,7 +340,7 @@ window.openEditMovieModal = () => {
   window.openModal('editMovieModal');
 };
 
-window.saveMovieChanges = () => {
+window.saveMovieChanges = async () => {
   const m = movies.find(item => item.id === selectedMovieId);
   if(!m) return;
 
@@ -338,16 +350,16 @@ window.saveMovieChanges = () => {
   m.awards = document.getElementById('editFAwards').value;
   m.desc = document.getElementById('editFDesc').value;
 
-  localStorage.setItem('hoscar_movies', JSON.stringify(movies));
+  await saveMoviesToCloud();
   renderCatalog();
   openMovieModal(m.id);
   window.closeModal('editMovieModal');
 };
 
-window.deleteCurrentMovie = () => {
+window.deleteCurrentMovie = async () => {
   if(confirm("Excluir este filme do catálogo?")) {
     movies = movies.filter(m => m.id !== selectedMovieId);
-    localStorage.setItem('hoscar_movies', JSON.stringify(movies));
+    await saveMoviesToCloud();
     renderCatalog();
     window.closeModal('movieModal');
   }
