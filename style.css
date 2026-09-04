@@ -128,7 +128,7 @@ header {
   animation: marquee 8s linear infinite; 
 }
 @keyframes marquee { 
-  5%, 20%{ transform: translateX(8%); }          /* Começa 5% antes de onde o texto está e da uma leve pausa em 25% */
+  0%, 25%{ transform: translateX(5%); }          /* Começa 5% antes de onde o texto está e da uma leve pausa em 25% */
   100% { transform: translateX(-90%); }      /* Vai até sair 90% pela esquerda */
 }
 
