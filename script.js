@@ -38,6 +38,7 @@ let profiles = defaultProfiles;
 let movies = [];
 
 let currentSelection = 'catalogo_geral'; 
+let currentSortOrder = 'newest'; // Critério de ordenação ativo
 let selectedMovieId = null;
 let currentUser = null;
 let loggedUsername = null;
@@ -155,19 +156,47 @@ function selectView(id) {
   renderCatalog();
 }
 
+// ALTERAR A ORDENAÇÃO DOS FILMES
+window.changeSortOrder = function(order) {
+  currentSortOrder = order;
+  renderCatalog();
+};
+
 function renderCatalog() {
   const grid = document.getElementById('movieGrid');
   grid.innerHTML = '';
 
-  const filteredMovies = (currentSelection === 'catalogo_geral') 
-    ? movies 
+  // 1. Filtra os filmes do catálogo/perfil selecionado
+  let filteredMovies = (currentSelection === 'catalogo_geral') 
+    ? [...movies] 
     : movies.filter(m => m.profileId === currentSelection);
 
-  if(filteredMovies.length === 0) {
+  if (filteredMovies.length === 0) {
     grid.innerHTML = '<p style="color:var(--text-dim); grid-column: 1/-1;">Nenhum filme cadastrado neste espaço.</p>';
     return;
   }
 
+  // 2. Ordena os filmes de acordo com a seleção
+  filteredMovies.sort((a, b) => {
+    const ratingA = parseFloat(a.rating) || 0;
+    const ratingB = parseFloat(b.rating) || 0;
+    const idA = parseInt(a.id) || 0;
+    const idB = parseInt(b.id) || 0;
+
+    switch (currentSortOrder) {
+      case 'oldest':
+        return idA - idB; // Mais antigos primeiro
+      case 'rating_desc':
+        return ratingB - ratingA; // Maior nota primeiro
+      case 'rating_asc':
+        return ratingA - ratingB; // Menor nota primeiro
+      case 'newest':
+      default:
+        return idB - idA; // Mais recentes primeiro
+    }
+  });
+
+  // 3. Renderiza os cards ordenados
   filteredMovies.forEach(m => {
     const card = document.createElement('div');
     card.className = 'movie-card';
