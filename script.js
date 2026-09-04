@@ -21,6 +21,7 @@ const db = getFirestore(app);
 const defaultProfiles = [
   { id: 'geral', name: 'Perfil Geral (Grupo)', img: '', desc: 'Perfil oficial do grupo para seleções e reviews coletivas.' },
   { id: 'arthur', name: 'Arthur', img: '', desc: 'Perfil do Administrador.' },
+  { id: 'Teste', name: 'Arthur', img: '', desc: 'Perfil do Administrador.' },
   { id: 'clarissa', name: 'Clarissa', img: '', desc: 'Recomendações da Clarissa.' },
   { id: 'dudu', name: 'Dudu', img: '', desc: 'Recomendações do Dudu.' },
   { id: 'alice', name: 'Alice', img: '', desc: 'Recomendações da Alice.' },
