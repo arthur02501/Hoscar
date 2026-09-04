@@ -130,31 +130,32 @@ header {
   width: 100%;
 }
 
-/* Estado normal (sem mouse): aplica a transição para voltar suavemente ao centro */
+/* 1. ESTADO PADRÃO (Sem mouse): 
+   Texto parado na posição inicial com transição de retorno */
 .marquee-text { 
   display: inline-block; 
   white-space: nowrap;
-  animation: marquee 6s linear infinite; 
-  animation-play-state: paused;
-  
-  /* Transição para resetar ao tirar o mouse: 
-     0.4s de duração com 0.2s de pausa (delay) antes de voltar */
-  transition: transform 0.4s ease-out 0.2s;
   transform: translateX(0%);
+  
+  /* Transição de retorno ao tirar o mouse:
+     - 0.4s: tempo do deslize de volta
+     - 0.3s: pequeno atraso (delay) antes de resetar */
+  transition: transform 0.4s ease-out 0.3s;
 }
 
-/* Quando passa o mouse: roda a animação e desativa a transição */
+/* 2. ESTADO HOVER (Com mouse): 
+   Aplica e roda a animação; remove a transição para não conflitar */
 .movie-card:hover .marquee-text,
 .card:hover .marquee-text,
 .grid > div:hover .marquee-text,
 .marquee-text:hover { 
-  animation-play-state: running;
-  transition: none; /* Remove a transição enquanto a animação roda */
+  animation: marquee 6s linear infinite;
+  transition: none;
 }
 
-/* Keyframes da animação */
+/* 3. KEYFRAMES DA ANIMAÇÃO */
 @keyframes marquee { 
-  0%, 10% { 
+  0%, 5% { 
     transform: translateX(0%); 
   } 
   65% { 
