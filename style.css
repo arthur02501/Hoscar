@@ -125,14 +125,14 @@ header {
 /* Loop Infinito de Título Longo (Marquee) */
 .marquee-text { 
   display: inline-block; 
-  animation: marquee 12s linear infinite; 
+  animation: marquee 10s linear infinite; 
 }
 @keyframes marquee { 
   0% { 
     transform: translateX(100%);  /* Começa totalmente do lado DIREITO (fora do card) */
   } 
   100% { 
-    transform: translateX(-100%); /* Vai até sair totalmente pelo lado ESQUERDO */
+    transform: translateX(-105%); /* Vai até sair totalmente pelo lado ESQUERDO */
   } 
 }
 
