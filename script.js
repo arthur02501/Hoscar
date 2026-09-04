@@ -17,8 +17,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Perfis de Usuários/Amigos
-const profilesData = [
+// Perfis de Usuários/Amigos (Padrão inicial)
+const defaultProfiles = [
   { id: 'geral', name: 'Perfil Geral (Grupo)', img: '', desc: 'Perfil oficial do grupo para seleções e reviews coletivas.' },
   { id: 'arthur', name: 'Arthur', img: '', desc: 'Perfil do Administrador.' },
   { id: 'clarissa', name: 'Clarissa', img: '', desc: 'Recomendações da Clarissa.' },
@@ -34,7 +34,7 @@ const profilesData = [
   { id: 'arthurbodevan', name: 'Arthur Bodevan', img: '', desc: 'Recomendações do Arthur Bodevan.' }
 ];
 
-let profiles = JSON.parse(localStorage.getItem('hoscar_profiles')) || profilesData;
+let profiles = defaultProfiles;
 let movies = JSON.parse(localStorage.getItem('hoscar_movies')) || [
   {
     id: '1',
@@ -61,7 +61,7 @@ onAuthStateChanged(auth, (user) => {
   
   if (user) {
     loggedUsername = user.email.replace('@hoscar.local', '').trim().toLowerCase();
-    isAdmin = (loggedUsername === "arthur"); // Apenas o Arthur é Admin
+    isAdmin = (loggedUsername === "arthur");
 
     userStatusText.textContent = `Olá, ${loggedUsername}!`;
     loginBtnNav.textContent = "Sair";
@@ -76,9 +76,24 @@ onAuthStateChanged(auth, (user) => {
   selectView(currentSelection);
 });
 
-function init() {
+async function init() {
   renderNav();
+  await loadProfilesFromCloud();
   selectView('catalogo_geral');
+}
+
+// Carrega perfis diretamente da Nuvem (Firebase)
+async function loadProfilesFromCloud() {
+  try {
+    const docRef = doc(db, "app_data", "profiles");
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      profiles = docSnap.data().list;
+      renderNav();
+    }
+  } catch (e) {
+    console.log("Usando lista padrão de perfis.");
+  }
 }
 
 function renderNav() {
@@ -102,27 +117,27 @@ function renderNav() {
 function selectView(id) {
   currentSelection = id;
   const pHeader = document.getElementById('profileHeader');
-  const catalogTitle = document.getElementById('catalogTitle');
+  catalogTitle = document.getElementById('catalogTitle');
 
   if (id === 'catalogo_geral') {
     pHeader.classList.remove('active');
     catalogTitle.textContent = "Catálogo Geral (Todos os Filmes do Grupo)";
   } else {
     const p = profiles.find(item => item.id === id);
-    pHeader.classList.add('active');
-    document.getElementById('pImg').src = p.img || 'https://via.placeholder.com/120/000000/ffd700?text=Sem+Foto';
-    document.getElementById('pName').textContent = p.name;
-    document.getElementById('pDesc').textContent = p.desc || 'Sem descrição.';
-    catalogTitle.textContent = `Filmes Exclusivos de ${p.name}`;
+    if (p) {
+      pHeader.classList.add('active');
+      document.getElementById('pImg').src = p.img || 'https://via.placeholder.com/120/000000/ffd700?text=Sem+Foto';
+      document.getElementById('pName').textContent = p.name;
+      document.getElementById('pDesc').textContent = p.desc || 'Sem descrição.';
+      catalogTitle.textContent = `Filmes Exclusivos de ${p.name}`;
+    }
   }
 
-  // Comparação sem diferenciar maiúsculas e minúsculas
+  // Verifica se o usuário logado é o dono do perfil ou Admin
   const isOwner = loggedUsername && (loggedUsername === id.trim().toLowerCase());
   const canEditProfile = isAdmin || isOwner;
 
   document.getElementById('adminEditBtn').style.display = (canEditProfile && id !== 'catalogo_geral') ? 'inline-block' : 'none';
-  
-  // Apenas Admin adiciona filmes
   document.getElementById('adminAddMovieBtn').style.display = isAdmin ? 'inline-block' : 'none';
 
   renderCatalog();
@@ -231,7 +246,7 @@ window.saveSecretReview = async function() {
   }
 }
 
-// EDITA O PERFIL SELECIONADO
+// EDITA O PERFIL SELECIONADO E SALVA NA NUVEM (GLOBAL)
 window.openEditProfileModal = () => {
   const p = profiles.find(item => item.id === currentSelection);
   if(!p) return;
@@ -239,13 +254,11 @@ window.openEditProfileModal = () => {
   document.getElementById('editImg').value = p.img;
   document.getElementById('editDesc').value = p.desc;
   
-  // Se não for admin, desabilita a alteração do Nome
   document.getElementById('editName').disabled = !isAdmin;
-  
   window.openModal('editProfileModal');
 };
 
-window.saveProfileChanges = () => {
+window.saveProfileChanges = async () => {
   const p = profiles.find(item => item.id === currentSelection);
   if(!p) return;
   
@@ -255,10 +268,16 @@ window.saveProfileChanges = () => {
   p.img = document.getElementById('editImg').value;
   p.desc = document.getElementById('editDesc').value;
   
-  localStorage.setItem('hoscar_profiles', JSON.stringify(profiles));
-  renderNav();
-  selectView(currentSelection);
-  window.closeModal('editProfileModal');
+  try {
+    // Salva na nuvem para atualizar para todo mundo
+    await setDoc(doc(db, "app_data", "profiles"), { list: profiles });
+    alert("Perfil atualizado com sucesso para todos!");
+    renderNav();
+    selectView(currentSelection);
+    window.closeModal('editProfileModal');
+  } catch (e) {
+    alert("Erro ao salvar perfil na nuvem: " + e.message);
+  }
 };
 
 // ADICIONAR E EDITAR FILME (ADMIN)
@@ -296,7 +315,6 @@ window.openMovieModal = (id) => {
   window.openModal('movieModal');
 };
 
-// EDITA O FILME ATUALMENTE ABERTO
 window.openEditMovieModal = () => {
   const m = movies.find(item => item.id === selectedMovieId);
   if(!m) return;
