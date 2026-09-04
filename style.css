@@ -127,23 +127,16 @@ header {
   display: inline-block; 
   animation: marquee 8s linear infinite; 
 }
+
 @keyframes marquee { 
-  /* DO SEGUNDO 0 AO SEGUNDO 0.8 (0% a 15% do tempo): */
-  /* Mantém o texto parado 8% recuado para a direita */
-  0%, 10% { 
-    transform: translateX(2.5%); 
+  0% { 
+    transform: translateX(100%);  /* Entra pela direita */
   } 
-
-  /* DO SEGUNDO 0.8 AO SEGUNDO 7.2 (15% a 85% do tempo): */
-  /* O texto desliza continuamente até sumir (-110% à esquerda) */
-  90% { 
-    transform: translateX(-110%); 
-  }
-
-  /* DO SEGUNDO 7.2 AO SEGUNDO 8,0 (85% a 100% do tempo): */
-  /* O texto fica parado no -110% (fora da tela) criando a pausa final */
+  20%, 70% { 
+    transform: translateX(0%);    /* Fica PARADO no centro de 20% a 70% do tempo */
+  } 
   100% { 
-    transform: translateX(-110%); 
+    transform: translateX(-100%); /* Sai pela esquerda e o ciclo reinicia pela direita */
   } 
 }
 
