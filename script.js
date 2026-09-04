@@ -21,7 +21,6 @@ const db = getFirestore(app);
 const defaultProfiles = [
   { id: 'geral', name: 'Perfil Geral (Grupo)', img: '', desc: 'Perfil oficial do grupo para seleções e reviews coletivas.' },
   { id: 'arthur', name: 'Arthur', img: '', desc: 'Perfil do Administrador.' },
-  { id: 'teste', name: 'Teste', img: '', desc: 'perfil teste' },
   { id: 'clarissa', name: 'Clarissa', img: '', desc: 'Recomendações da Clarissa.' },
   { id: 'dudu', name: 'Dudu', img: '', desc: 'Recomendações do Dudu.' },
   { id: 'alice', name: 'Alice', img: '', desc: 'Recomendações da Alice.' },
@@ -30,9 +29,9 @@ const defaultProfiles = [
   { id: 'pedro', name: 'Pedro', img: '', desc: 'Recomendações do Pedro.' },
   { id: 'igor', name: 'Igor', img: '', desc: 'Recomendações do Igor.' },
   { id: 'gabriel', name: 'Gabriel', img: '', desc: 'Recomendações do Gabriel.' },
-  { id: 'leonardo', name: 'Leonardo', img: '', desc: 'Recomendações do Leonardo.' },
   { id: 'gustavo', name: 'Gustavo', img: '', desc: 'Recomendações do Gustavo.' },
-  { id: 'arthurbodevan', name: 'Arthur Bodevan', img: '', desc: 'Recomendações do Arthur Bodevan.' }
+  { id: 'arthurbodevan', name: 'Arthur Bodevan', img: '', desc: 'Recomendações do Arthur Bodevan.' },
+  { id: 'leonardo', name: 'Leonardo', img: '', desc: 'Recomendações do Leonardo.' }
 ];
 
 let profiles = defaultProfiles;
