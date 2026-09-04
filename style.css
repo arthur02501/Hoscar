@@ -124,53 +124,45 @@ header {
 
 /* Loop Infinito de Título Longo (Marquee) */
 /* Container que esconde o excesso do texto */
-.card-title-container {
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-/* Texto por padrão fica parado */
-/* 1. Garanta que o contêiner do título no JS/HTML corte o texto que vaza */
 .movie-title, .card-title, .movie-card h3 {
   overflow: hidden;
   white-space: nowrap;
   width: 100%;
 }
 
-/* 2. Configuração do texto em marquee (Inicia VISÍVEL e parado) */
+/* Estado normal (sem mouse): aplica a transição para voltar suavemente ao centro */
 .marquee-text { 
   display: inline-block; 
   white-space: nowrap;
-  animation: marquee 8s linear infinite; 
-  animation-play-state: paused; /* Fica parado por padrão */
+  animation: marquee 6s linear infinite; 
+  animation-play-state: paused;
+  
+  /* Transição para resetar ao tirar o mouse: 
+     0.4s de duração com 0.2s de pausa (delay) antes de voltar */
+  transition: transform 0.4s ease-out 0.2s;
+  transform: translateX(0%);
 }
 
-/* 3. Ativa a animação no Hover (inclui seletores comuns de cards e o próprio texto) */
+/* Quando passa o mouse: roda a animação e desativa a transição */
 .movie-card:hover .marquee-text,
 .card:hover .marquee-text,
 .grid > div:hover .marquee-text,
 .marquee-text:hover { 
-  animation-play-state: running; /* Roda no hover */
+  animation-play-state: running;
+  transition: none; /* Remove a transição enquanto a animação roda */
 }
 
-/* 4. Animação fluida e contínua */
+/* Keyframes da animação */
 @keyframes marquee { 
-  /* 0% a 10%: Fica parado no centro para o usuário conseguir ler */
   0%, 10% { 
     transform: translateX(0%); 
   } 
-  
-  /* 65%: Desliza suavemente até sair 105% pela esquerda */
   65% { 
     transform: translateX(-105%); 
   }
-  
-  /* 65.01%: Teleporta instantaneamente para a direita fora da visão */
   65.01% { 
     transform: translateX(105%); 
   }
-  
-  /* 100%: Entra vindo da direita e volta à posição original */
   100% { 
     transform: translateX(0%); 
   } 
