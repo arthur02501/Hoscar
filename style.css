@@ -266,3 +266,41 @@ header {
   color: #ffffff;
   padding: 10px;
 }
+/* Estilos para o Player de Vídeo Integrado */
+#mPlayerContainer button {
+  background-color: var(--accent-yellow);
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+#mPlayerContainer button:hover {
+  background-color: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+}
+
+/* Modal do Player com proporção fluida 16:9 */
+#playerModal .modal-content {
+  background-color: #000000;
+  border: 2px solid var(--accent-yellow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* Estilo para o campo de quem editou no modal */
+#mModalEditorContainer {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border-left: 3px solid var(--accent-yellow);
+}
+
+#mModalEditorContainer strong {
+  color: var(--text-light);
+}
