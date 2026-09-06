@@ -1,7 +1,7 @@
 :root {
-  --bg-color: #000000;        /* Fundo Preto Absoluto */
-  --card-bg: #141414;         /* Cards em preto grafite */
-  --accent-yellow: #ffd700;   /* Amarelo Ouro */
+  --bg-color: #000000;         /* Fundo Preto Absoluto */
+  --card-bg: #141414;          /* Cards em preto grafite */
+  --accent-yellow: #ffd700;    /* Amarelo Ouro */
   --accent-yellow-hover: #e6c200;
   --text-dark: #000000;
   --text-light: #ffffff;
@@ -123,28 +123,19 @@ header {
 }
 
 /* Loop Infinito de Título Longo (Marquee) */
-/* Container que esconde o excesso do texto */
 .movie-title, .card-title, .movie-card h3 {
   overflow: hidden;
   white-space: nowrap;
   width: 100%;
 }
 
-/* 1. ESTADO PADRÃO (Sem mouse): 
-   Texto parado na posição inicial com transição de retorno */
 .marquee-text { 
   display: inline-block; 
   white-space: nowrap;
   transform: translateX(0%);
-  
-  /* Transição de retorno ao tirar o mouse:
-     - 0.4s: tempo do deslize de volta
-     - 0.3s: pequeno atraso (delay) antes de resetar */
   transition: transform 0.4s ease-out 0.3s;
 }
 
-/* 2. ESTADO HOVER (Com mouse): 
-   Aplica e roda a animação; remove a transição para não conflitar */
 .movie-card:hover .marquee-text,
 .card:hover .marquee-text,
 .grid > div:hover .marquee-text,
@@ -153,20 +144,11 @@ header {
   transition: none;
 }
 
-/* 3. KEYFRAMES DA ANIMAÇÃO */
 @keyframes marquee { 
-  0%, 5% { 
-    transform: translateX(0%); 
-  } 
-  65% { 
-    transform: translateX(-105%); 
-  }
-  65.01% { 
-    transform: translateX(105%); 
-  }
-  100% { 
-    transform: translateX(0%); 
-  } 
+  0%, 5% { transform: translateX(0%); } 
+  65% { transform: translateX(-105%); }
+  65.01% { transform: translateX(105%); }
+  100% { transform: translateX(0%); } 
 }
 
 /* Modais */
@@ -248,7 +230,6 @@ header {
   padding-right: 34px;
 }
 
-/* Efeito ao passar o mouse e ao clicar */
 .sort-container select:hover {
   border-color: #ffd700;
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
@@ -260,12 +241,12 @@ header {
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
-/* Estilo das opções internas */
 .sort-container select option {
   background-color: #1a1a1a;
   color: #ffffff;
   padding: 10px;
 }
+
 /* Estilos para o Player de Vídeo Integrado */
 #mPlayerContainer button {
   background-color: var(--accent-yellow);
@@ -291,15 +272,27 @@ header {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
-/* Estilo para o campo de quem editou no modal */
-#mModalEditorContainer {
-  font-size: 0.9rem;
-  color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.03);
-  padding: 6px 10px;
-  border-radius: 4px;
-  border-left: 3px solid var(--accent-yellow);
+.player-modal-container .modal-content {
+  max-width: 900px;
+  width: 90%;
 }
+
+.player-iframe-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* Proporção 16:9 perfeita */
+  height: 0;
+}
+
+.player-iframe-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+
 /* Estilo para a badge / container da Edição do Hoscar no Modal */
 #mModalEditorContainer {
   font-size: 0.95rem;
