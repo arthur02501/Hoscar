@@ -1,7 +1,7 @@
 :root {
-  --bg-color: #000000;         /* Fundo Preto Absoluto */
-  --card-bg: #141414;          /* Cards em preto grafite */
-  --accent-yellow: #ffd700;    /* Amarelo Ouro */
+  --bg-color: #000000;        /* Fundo Preto Absoluto */
+  --card-bg: #141414;         /* Cards em preto grafite */
+  --accent-yellow: #ffd700;   /* Amarelo Ouro */
   --accent-yellow-hover: #e6c200;
   --text-dark: #000000;
   --text-light: #ffffff;
@@ -123,19 +123,28 @@ header {
 }
 
 /* Loop Infinito de Título Longo (Marquee) */
+/* Container que esconde o excesso do texto */
 .movie-title, .card-title, .movie-card h3 {
   overflow: hidden;
   white-space: nowrap;
   width: 100%;
 }
 
+/* 1. ESTADO PADRÃO (Sem mouse): 
+   Texto parado na posição inicial com transição de retorno */
 .marquee-text { 
   display: inline-block; 
   white-space: nowrap;
   transform: translateX(0%);
+  
+  /* Transição de retorno ao tirar o mouse:
+     - 0.4s: tempo do deslize de volta
+     - 0.3s: pequeno atraso (delay) antes de resetar */
   transition: transform 0.4s ease-out 0.3s;
 }
 
+/* 2. ESTADO HOVER (Com mouse): 
+   Aplica e roda a animação; remove a transição para não conflitar */
 .movie-card:hover .marquee-text,
 .card:hover .marquee-text,
 .grid > div:hover .marquee-text,
@@ -144,11 +153,20 @@ header {
   transition: none;
 }
 
+/* 3. KEYFRAMES DA ANIMAÇÃO */
 @keyframes marquee { 
-  0%, 5% { transform: translateX(0%); } 
-  65% { transform: translateX(-105%); }
-  65.01% { transform: translateX(105%); }
-  100% { transform: translateX(0%); } 
+  0%, 5% { 
+    transform: translateX(0%); 
+  } 
+  65% { 
+    transform: translateX(-105%); 
+  }
+  65.01% { 
+    transform: translateX(105%); 
+  }
+  100% { 
+    transform: translateX(0%); 
+  } 
 }
 
 /* Modais */
@@ -191,62 +209,114 @@ header {
 
 /* Container de Ordenação */
 .sort-container {
-  display: flex; align-items: center; justify-content: flex-end;
-  gap: 10px; margin: 15px 0 25px 0; font-family: inherit;
-}
-.sort-container label {
-  color: var(--text-dim); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
-}
-.sort-container select {
-  background-color: #141414; color: #ffd700; border: 1px solid #333333;
-  padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;
-  cursor: pointer; outline: none; transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); appearance: none;
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-  background-repeat: no-repeat; background-position: right 10px center; background-size: 18px; padding-right: 34px;
-}
-.sort-container select:hover {
-  border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); transform: translateY(-1px);
-}
-.sort-container select:focus {
-  border-color: #ffd700; box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
-}
-.sort-container select option {
-  background-color: #1a1a1a; color: #ffffff; padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 15px 0 25px 0;
+  font-family: inherit;
 }
 
+.sort-container label {
+  color: var(--text-dim, #aaaaaa);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Dropdown/Select Estilizado */
+.sort-container select {
+  background-color: #141414;
+  color: #ffd700;
+  border: 1px solid #333333;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px;
+  padding-right: 34px;
+}
+
+/* Efeito ao passar o mouse e ao clicar */
+.sort-container select:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.sort-container select:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Estilo das opções internas */
+.sort-container select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  padding: 10px;
+}
 /* Estilos para o Player de Vídeo Integrado */
 #mPlayerContainer button {
-  background-color: var(--accent-yellow); color: var(--text-dark);
-  font-size: 1rem; font-weight: bold; padding: 12px; border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2); transition: all 0.2s ease-in-out;
+  background-color: var(--accent-yellow);
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+  transition: all 0.2s ease-in-out;
 }
+
 #mPlayerContainer button:hover {
-  background-color: var(--accent-yellow-hover); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
+  background-color: var(--accent-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
 }
 
 /* Modal do Player com proporção fluida 16:9 */
 #playerModal .modal-content {
-  background-color: #000000; border: 2px solid var(--accent-yellow); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-.player-modal-container .modal-content { max-width: 900px; width: 90%; }
-.player-iframe-wrapper {
-  position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
-}
-.player-iframe-wrapper iframe {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 4px;
+  background-color: #000000;
+  border: 2px solid var(--accent-yellow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
 }
 
+/* Estilo para o campo de quem editou no modal */
+#mModalEditorContainer {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border-left: 3px solid var(--accent-yellow);
+}
 /* Estilo para a badge / container da Edição do Hoscar no Modal */
 #mModalEditorContainer {
-  font-size: 0.95rem; color: var(--text-light);
-  background: rgba(255, 215, 0, 0.08); padding: 8px 12px;
-  border-radius: 6px; border-left: 3px solid var(--accent-yellow);
-  display: inline-block; margin-top: 5px;
+  font-size: 0.95rem;
+  color: var(--text-light);
+  background: rgba(255, 215, 0, 0.08);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-yellow);
+  display: inline-block;
+  margin-top: 5px;
 }
+
 #mModalEditor {
-  color: var(--accent-yellow); font-weight: bold;
+  color: var(--accent-yellow);
+  font-weight: bold;
 }
+
 #mModalEditorContainer strong {
   color: var(--text-light);
 }
