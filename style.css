@@ -305,4 +305,18 @@ header {
   height: 100%;
   border-radius: 4px;
 }
+#mModalEditorContainer, #mModalAwardsContainer {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  background: rgba(255, 215, 0, 0.08);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-yellow);
+  margin-top: 5px;
+}
+
+#mModalEditor, #mModalAwards {
+  color: var(--accent-yellow);
+  font-weight: bold;
+}
 
