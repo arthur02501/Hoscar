@@ -93,7 +93,7 @@ async function loadMoviesFromCloud() {
     const docRef = doc(db, "app_data", "movies");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      movies = docSnap.data().list;
+      movies = docSnap.data().list || [];
       renderCatalog();
     }
   } catch (e) {
@@ -160,6 +160,13 @@ window.changeSortOrder = function(order) {
   renderCatalog();
 };
 
+// Função auxiliar para extrair o número da edição (ex: "5ª Edição" -> 5)
+function extractEditionNumber(editorStr) {
+  if (!editorStr) return -1;
+  const match = editorStr.match(/\d+/);
+  return match ? parseInt(match[0], 10) : -1;
+}
+
 function renderCatalog() {
   const grid = document.getElementById('movieGrid');
   grid.innerHTML = '';
@@ -186,6 +193,14 @@ function renderCatalog() {
         return ratingB - ratingA;
       case 'rating_asc':
         return ratingA - ratingB;
+      case 'edition_desc': {
+        const edA = extractEditionNumber(a.editor);
+        const edB = extractEditionNumber(b.editor);
+        if (edA === -1 && edB === -1) return idB - idA; // se ambos sem edição, usa o mais recente
+        if (edA === -1) return 1;  // sem edição vai para o final
+        if (edB === -1) return -1; // sem edição vai para o final
+        return edB - edA; // maior edição primeiro
+      }
       case 'newest':
       default:
         return idB - idA;
@@ -323,10 +338,10 @@ window.saveMovie = async () => {
     title: document.getElementById('fTitle').value,
     cover: document.getElementById('fImg').value,
     rating: document.getElementById('fRating').value,
-    editor: document.getElementById('fEditor').value,
-    awards: document.getElementById('fAwards').value,
+    editor: document.getElementById('fEditor').value.trim(),
+    awards: document.getElementById('fAwards').value.trim(),
     desc: document.getElementById('fDesc').value,
-    playerUrl: document.getElementById('fPlayerUrl').value
+    playerUrl: document.getElementById('fPlayerUrl').value.trim()
   };
   
   movies.push(newMovie);
@@ -339,23 +354,36 @@ window.openMovieModal = (id) => {
   selectedMovieId = id;
   const m = movies.find(item => item.id === id);
   if(!m) return;
+  
   document.getElementById('mModalImg').src = m.cover || 'https://via.placeholder.com/300x450/000/ffd700?text=Sem+Capa';
   document.getElementById('mModalTitle').textContent = m.title;
   document.getElementById('mModalRating').textContent = m.rating || 'N/A';
   
+  // Edição 1: Ocultar Edição e Prêmios se não houver edição informada
   const editorContainer = document.getElementById('mModalEditorContainer');
-  if (m.editor && m.editor.trim() !== '') {
+  const awardsContainer = document.getElementById('mModalAwardsContainer');
+
+  if (m.editor && m.editor !== '') {
     document.getElementById('mModalEditor').textContent = m.editor;
     editorContainer.style.display = 'block';
+    
+    // Se tem edição, verifica se exibe prêmios
+    if (m.awards && m.awards !== '') {
+      document.getElementById('mModalAwards').textContent = m.awards;
+      awardsContainer.style.display = 'block';
+    } else {
+      awardsContainer.style.display = 'none';
+    }
   } else {
+    // Se o filme não participou de nenhuma edição, oculta edição E prêmios
     editorContainer.style.display = 'none';
+    awardsContainer.style.display = 'none';
   }
 
-  document.getElementById('mModalAwards').textContent = m.awards || 'Nenhum';
   document.getElementById('mModalDesc').textContent = m.desc || 'Sem descrição.';
   
   const playerContainer = document.getElementById('mPlayerContainer');
-  if (m.playerUrl && m.playerUrl.trim() !== '') {
+  if (m.playerUrl && m.playerUrl !== '') {
     playerContainer.style.display = 'block';
   } else {
     playerContainer.style.display = 'none';
@@ -395,10 +423,10 @@ window.saveMovieChanges = async () => {
   m.title = document.getElementById('editFTitle').value;
   m.cover = document.getElementById('editFImg').value;
   m.rating = document.getElementById('editFRating').value;
-  m.editor = document.getElementById('editFEditor').value;
-  m.awards = document.getElementById('editFAwards').value;
+  m.editor = document.getElementById('editFEditor').value.trim();
+  m.awards = document.getElementById('editFAwards').value.trim();
   m.desc = document.getElementById('editFDesc').value;
-  m.playerUrl = document.getElementById('editFPlayerUrl').value;
+  m.playerUrl = document.getElementById('editFPlayerUrl').value.trim();
 
   await saveMoviesToCloud();
   renderCatalog();
@@ -420,7 +448,7 @@ window.openModal = (id) => document.getElementById(id).classList.add('active');
 window.closeModal = (id) => {
   document.getElementById(id).classList.remove('active');
   if (id === 'playerModal') {
-    document.getElementById('playerIframe').src = ''; // Limpa o vídeo ao fechar
+    document.getElementById('playerIframe').src = ''; // Limpa o src do iframe para parar a mídia/som
   }
 };
 
