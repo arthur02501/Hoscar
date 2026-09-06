@@ -214,41 +214,52 @@ header {
 
 .sort-container select {
   background-color: #141414;
-  color: #ffd700;
+  color: var(--accent-yellow);
   border: 1px solid #333333;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  padding: 10px 38px 10px 16px;
+  border-radius: 6px; /* Bordinhas levemente arredondadas combinando com os cards/botões */
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease-in-out;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  
+  /* Remove a setinha padrão do navegador para criarmos uma personalizada */
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  
+  /* Ícone de seta personalizado em tom de amarelo ouro */
   background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffd700" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 12px center;
   background-size: 18px;
-  padding-right: 34px;
 }
 
 .sort-container select:hover {
-  border-color: #ffd700;
+  border-color: var(--accent-yellow);
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
   transform: translateY(-1px);
 }
 
 .sort-container select:focus {
-  border-color: #ffd700;
+  border-color: var(--accent-yellow);
   box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
 }
 
+/* Estilização das opções internas do menu suspenso */
 .sort-container select option {
-  background-color: #1a1a1a;
+  background-color: #141414;
   color: #ffffff;
-  padding: 10px;
+  padding: 12px;
+  font-weight: 500;
+}
+
+.sort-container select option:checked,
+.sort-container select option:hover {
+  background-color: var(--accent-yellow) !important;
+  color: var(--text-dark) !important;
 }
 
 /* Player de Vídeo e Estilizações do Player */
