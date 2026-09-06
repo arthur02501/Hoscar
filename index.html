@@ -3,226 +3,283 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hoscar</title>
+  <title>Hoscar - Catálogo de Filmes</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Ícones do Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
 
-  <!-- Topo -->
-  <header>
-    <button class="hamburger" id="openNav">&#9776;</button>
-    <div class="brand">Hoscar</div>
-    <div class="user-status-area">
-      <span id="userStatusText">Visitante</span>
-      <button class="btn btn-login-top" id="loginBtnNav" onclick="openLoginModal()">Entrar</button>
+  <!-- TOPO / HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <button id="openNav" class="icon-btn" title="Abrir Menu">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <h1 class="logo">HOSCAR</h1>
+    </div>
+    
+    <div class="header-right">
+      <button class="secret-btn" onclick="openSecretModal()" title="Caixa Secreta">
+        <span class="material-symbols-outlined">lock</span>
+      </button>
+      <div id="userStatus" class="user-status">
+        <span id="userStatusText">Visitante</span>
+        <button id="loginBtnNav" class="login-nav-btn" onclick="openLoginModal()">Entrar</button>
+      </div>
     </div>
   </header>
 
-  <div class="overlay" id="overlay"></div>
-
-  <!-- Menu Hambúrguer (Amarelo) -->
-  <nav class="nav-drawer" id="navDrawer">
-    <h3>Perfis</h3>
-    <ul id="profileList"></ul>
+  <!-- MENU LATERAL (DRAWER) -->
+  <div id="overlay" class="overlay"></div>
+  <nav id="navDrawer" class="nav-drawer">
+    <div class="drawer-header">
+      <h2>Perfis do Grupo</h2>
+    </div>
+    <ul id="profileList" class="profile-list">
+      <!-- Inserido dinamicamente via JS -->
+    </ul>
   </nav>
 
-  <div class="container">
-    <!-- Perfil Selecionado -->
-    <div class="profile-header" id="profileHeader">
-      <img src="" id="pImg" class="profile-avatar" alt="Foto do perfil">
-      <div class="profile-name" id="pName"></div>
-      <div class="profile-desc" id="pDesc"></div>
-      
-      <div class="profile-actions">
-        <button class="btn btn-secondary" onclick="openSecretModal()">🔒 Reviews</button>
-        <button class="btn btn-secondary" id="adminEditBtn" style="display:none;" onclick="openEditProfileModal()">✏️ Editar Perfil</button>
-        <button class="btn" id="adminAddMovieBtn" style="display:none;" onclick="openAddMovieModal()">+ Adicionar Filme</button>
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="main-container">
+    
+    <!-- CABEÇALHO DO PERFIL SELECIONADO -->
+    <section id="profileHeader" class="profile-header">
+      <div class="profile-avatar">
+        <img id="pImg" src="" alt="Avatar">
       </div>
-    </div>
+      <div class="profile-info">
+        <h2 id="pName">Nome do Perfil</h2>
+        <p id="pDesc">Descrição do perfil...</p>
+        <div class="profile-actions">
+          <button id="adminEditBtn" class="btn-outline" onclick="openEditProfileModal()" style="display:none;">
+            Editar Perfil
+          </button>
+        </div>
+      </div>
+    </section>
 
-    <!-- Catálogo de Filmes -->
-    <h3 class="catalog-title" id="catalogTitle">Catálogo Geral</h3>
-    <!-- Seletor de Ordenação -->
-    <div class="sort-container">
-    <label for="sortSelect">Ordenar por:</label>
-    <select id="sortSelect" onchange="window.changeSortOrder(this.value)">
-    <option value="newest">Mais Recentes</option>
-    <option value="oldest">Mais Antigos</option>
-    <option value="rating_desc">Maior Nota (★)</option>
-    <option value="rating_asc">Menor Nota (★)</option>
-  </select>
-</div>
-    <div class="grid" id="movieGrid"></div>
-  </div>
+    <!-- BARRA DE TÍTULO DO CATÁLOGO E FILTROS -->
+    <section class="catalog-controls">
+      <h2 id="catalogTitle">Catálogo Geral</h2>
+      <div class="controls-right">
+        <div class="sort-dropdown">
+          <select id="sortSelect" onchange="changeSortOrder(this.value)">
+            <option value="newest">Mais Recentes</option>
+            <option value="oldest">Mais Antigos</option>
+            <option value="rating_desc">Maior Nota</option>
+            <option value="rating_asc">Menor Nota</option>
+          </select>
+        </div>
+        <button id="adminAddMovieBtn" class="btn-primary" onclick="openAddMovieModal()" style="display:none;">
+          + Adicionar Filme
+        </button>
+      </div>
+    </section>
 
-  <!-- Modal Detalhes do Filme -->
-  <div class="modal" id="movieModal">
+    <!-- GRADE DE FILMES -->
+    <section id="movieGrid" class="movie-grid">
+      <!-- Filmes injetados via JS -->
+    </section>
+
+  </main>
+
+  <!-- MODAL DE LOGIN -->
+  <div id="loginModal" class="modal">
     <div class="modal-content">
-      <span class="close-modal" onclick="closeModal('movieModal')">&times;</span>
-      <div class="movie-modal-layout">
-        <div class="movie-modal-cover">
-          <img id="mModalImg" src="" alt="Capa do filme">
-        </div>
-        <div class="movie-modal-details">
-          <h2 id="mModalTitle"></h2>
-          <div class="meta-item"><strong>Nota:</strong> <span id="mModalRating"></span>/10</div>
-          
-          <!-- Editado por (acima dos prêmios) -->
-          <div class="meta-item" id="mModalEditorContainer" style="display:none;">
-            <strong>Editado por:</strong> <span id="mModalEditor"></span>
-          </div>
-
-          <div class="meta-item"><strong>Prêmios:</strong> <span id="mModalAwards"></span></div>
-          <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
-          
-          <!-- Botão de Play (Aparece apenas se houver link cadastrado) -->
-          <div id="mPlayerContainer" style="margin-top: 15px; display: none;">
-            <button class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="openPlayerModal()">▶ Assistir Filme</button>
-          </div>
-
-          <div id="mAdminActions" style="margin-top:20px; display:none; gap:10px; flex-wrap: wrap;">
-            <button class="btn btn-secondary" onclick="openEditMovieModal()">✏️ Editar Filme</button>
-            <button class="btn btn-secondary" onclick="deleteCurrentMovie()">Excluir Filme</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Player de Vídeo -->
-  <div class="modal" id="playerModal">
-    <div class="modal-content" style="max-width: 850px; background: #000;">
-      <span class="close-modal" onclick="closeModal('playerModal')">&times;</span>
-      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-        <iframe id="moviePlayerIframe" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen></iframe>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Login -->
-  <div class="modal" id="loginModal">
-    <div class="modal-content modal-pad">
-      <span class="close-modal" onclick="closeModal('loginModal')">&times;</span>
-      <h3>Login de Usuário</h3>
+      <h2>Entrar no Sistema</h2>
       <div class="form-group">
-        <label>Usuário</label>
-        <input type="text" id="loginUsername" placeholder="Ex: dudu, alice, edu...">
+        <label for="loginUsername">Nome de Usuário:</label>
+        <input type="text" id="loginUsername" placeholder="Ex: arthur, dudu...">
       </div>
       <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="loginPassword" placeholder="******">
+        <label for="loginPassword">Senha:</label>
+        <input type="password" id="loginPassword" placeholder="Sua senha">
       </div>
-      <button class="btn" onclick="handleLogin()">Entrar</button>
-    </div>
-  </div>
-
-  <!-- Modal Caixa Secreta -->
-  <div class="modal" id="secretModal">
-    <div class="modal-content modal-pad">
-      <span class="close-modal" onclick="closeModal('secretModal')">&times;</span>
-      <h3>Caixa de Reviews</h3>
-      <div id="secretContentArea">
-        <div class="secret-box-text" id="secretText">Aguardando login...</div>
-        
-        <div id="adminSecretEdit" style="display: none; margin-top: 15px;">
-          <hr style="border-color:#333; margin: 15px 0;">
-          <h4 style="color:var(--accent-yellow);">Admin: Escrever/Editar Review</h4>
-          <div class="form-group" style="margin-top:8px;">
-            <textarea id="adminSecretInput" rows="4" placeholder="Escreva a review para este amigo..."></textarea>
-          </div>
-          <button class="btn" onclick="saveSecretReview()">Salvar na Nuvem</button>
-        </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('loginModal')">Cancelar</button>
+        <button class="btn-primary" onclick="handleLogin()">Entrar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Editar Perfil -->
-  <div class="modal" id="editProfileModal">
-    <div class="modal-content modal-pad">
-      <span class="close-modal" onclick="closeModal('editProfileModal')">&times;</span>
-      <h3>Editar Perfil</h3>
+  <!-- MODAL DE CAIXA SECRETA -->
+  <div id="secretModal" class="modal">
+    <div class="modal-content">
+      <h2>🔒 Caixa Secreta / Review</h2>
+      <p id="secretText" class="secret-text-box">Carregando...</p>
+      
+      <div id="adminSecretEdit" style="display:none; margin-top: 15px;">
+        <h3>Editar Review Secreta (Admin)</h3>
+        <textarea id="adminSecretInput" rows="4" placeholder="Escreva o texto secreto aqui..."></textarea>
+        <button class="btn-primary" onclick="saveSecretReview()" style="margin-top: 10px;">Salvar Alteração</button>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-secondary" onclick="closeModal('secretModal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDITAR PERFIL -->
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <h2>Editar Perfil</h2>
       <div class="form-group">
-        <label>Nome do Amigo</label>
+        <label for="editName">Nome do Perfil:</label>
         <input type="text" id="editName">
       </div>
       <div class="form-group">
-        <label>Foto (Link da Imagem)</label>
-        <input type="text" id="editImg">
+        <label for="editImg">URL da Foto de Perfil:</label>
+        <input type="text" id="editImg" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label>Descrição</label>
+        <label for="editDesc">Descrição:</label>
         <textarea id="editDesc" rows="3"></textarea>
       </div>
-      <button class="btn" onclick="saveProfileChanges()">Salvar Alterações</button>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('editProfileModal')">Cancelar</button>
+        <button class="btn-primary" onclick="saveProfileChanges()">Salvar</button>
+      </div>
     </div>
   </div>
 
-  <!-- Modal Adicionar Filme (Admin) -->
-  <div class="modal" id="addMovieModal">
-    <div class="modal-content modal-pad">
-      <span class="close-modal" onclick="closeModal('addMovieModal')">&times;</span>
-      <h3>Adicionar Filme ao Catálogo</h3>
+  <!-- MODAL DE ADICIONAR FILME -->
+  <div id="addMovieModal" class="modal">
+    <div class="modal-content">
+      <h2>Adicionar Novo Filme</h2>
       <div class="form-group">
-        <label>Título do Filme</label>
-        <input type="text" id="fTitle">
+        <label for="fTitle">Título do Filme:</label>
+        <input type="text" id="fTitle" placeholder="Ex: Oppenheimer">
       </div>
       <div class="form-group">
-        <label>Link Direct da Capa</label>
-        <input type="text" id="fImg" placeholder="https://link-da-imagem.com/capa.jpg">
+        <label for="fImg">URL da Capa (Poster):</label>
+        <input type="text" id="fImg" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label>Link do Player (Vídeo/Embed - Exclusivo Admin)</label>
-        <input type="text" id="fPlayerLink" placeholder="https://www.youtube.com/embed/... ou link direto">
+        <label for="fPlayerLink">Link do Vídeo Integrado (Opcional - Apenas Admin):</label>
+        <input type="text" id="fPlayerLink" placeholder="Link de incorporação/embed do vídeo">
       </div>
       <div class="form-group">
-        <label>Nota (0 a 10)</label>
-        <input type="number" step="0.1" id="fRating">
+        <label for="fRating">Nota:</label>
+        <input type="text" id="fRating" placeholder="Ex: 9.5">
       </div>
       <div class="form-group">
-        <label>Prêmios</label>
-        <input type="text" id="fAwards">
+        <label for="fAwards">Prêmios / Observações:</label>
+        <input type="text" id="fAwards" placeholder="Ex: Melhor Filme, Direção...">
       </div>
       <div class="form-group">
-        <label>Descrição / Resumo</label>
-        <textarea id="fDesc" rows="3"></textarea>
+        <label for="fEdition">Número da Edição do Hoscar (Opcional):</label>
+        <input type="number" id="fEdition" placeholder="Ex: 1, 2, 3...">
       </div>
-      <button class="btn" onclick="saveMovie()">Salvar Filme</button>
+      <div class="form-group">
+        <label for="fDesc">Descrição / Review:</label>
+        <textarea id="fDesc" rows="3" placeholder="Fale sobre o filme..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('addMovieModal')">Cancelar</button>
+        <button class="btn-primary" onclick="saveMovie()">Adicionar</button>
+      </div>
     </div>
   </div>
 
-  <!-- Modal Editar Filme (Admin) -->
-  <div class="modal" id="editMovieModal">
-    <div class="modal-content modal-pad">
-      <span class="close-modal" onclick="closeModal('editMovieModal')">&times;</span>
-      <h3>Editar Filme</h3>
+  <!-- MODAL DE DETALHES DO FILME -->
+  <div id="movieModal" class="modal">
+    <div class="modal-content movie-detail-content">
+      <div class="movie-detail-grid">
+        <div class="movie-detail-poster">
+          <img id="mModalImg" src="" alt="Capa">
+        </div>
+        <div class="movie-detail-info">
+          <h2 id="mModalTitle">Título do Filme</h2>
+          <div class="movie-meta">
+            <span>Nota: <strong id="mModalRating"></strong></span>
+          </div>
+
+          <!-- Container da Edição do Hoscar (Aparece dinamicamente se preenchido) -->
+          <div id="mModalEditorContainer" style="display: none;">
+            🏆 <span id="mModalEditor"></span>
+          </div>
+
+          <div class="movie-awards-box">
+            <strong>Prêmios:</strong> <span id="mModalAwards"></span>
+          </div>
+          
+          <p id="mModalDesc" class="movie-description">Descrição...</p>
+
+          <!-- Botão de Play do Vídeo Integrado -->
+          <div id="mPlayerContainer" style="display: none; margin-top: 15px;">
+            <button class="btn-primary" onclick="openPlayerModal()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span class="material-symbols-outlined">play_arrow</span> Assistir Filme / Player
+            </button>
+          </div>
+
+          <!-- Ações de Admin (Editar / Excluir) -->
+          <div id="mAdminActions" class="admin-actions" style="display:none; margin-top: 20px;">
+            <button class="btn-outline" onclick="openEditMovieModal()">Editar Filme</button>
+            <button class="btn-danger" onclick="deleteCurrentMovie()">Excluir</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-secondary" onclick="closeModal('movieModal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE EDITAR FILME -->
+  <div id="editMovieModal" class="modal">
+    <div class="modal-content">
+      <h2>Editar Filme</h2>
       <div class="form-group">
-        <label>Título do Filme</label>
+        <label for="editFTitle">Título do Filme:</label>
         <input type="text" id="editFTitle">
       </div>
       <div class="form-group">
-        <label>Link Direct da Capa</label>
+        <label for="editFImg">URL da Capa:</label>
         <input type="text" id="editFImg">
       </div>
       <div class="form-group">
-        <label>Link do Player (Vídeo/Embed - Exclusivo Admin)</label>
-        <input type="text" id="editFPlayerLink" placeholder="https://www.youtube.com/embed/... ou link direto">
+        <label for="editFPlayerLink">Link do Vídeo Integrado (Apenas Admin):</label>
+        <input type="text" id="editFPlayerLink">
       </div>
       <div class="form-group">
-        <label>Nota (0 a 10)</label>
-        <input type="number" step="0.1" id="editFRating">
+        <label for="editFRating">Nota:</label>
+        <input type="text" id="editFRating">
       </div>
       <div class="form-group">
-        <label>Prêmios</label>
+        <label for="editFAwards">Prêmios / Observações:</label>
         <input type="text" id="editFAwards">
       </div>
       <div class="form-group">
-        <label>Descrição / Resumo</label>
+        <label for="editFEdition">Número da Edição do Hoscar (Opcional):</label>
+        <input type="number" id="editFEdition" placeholder="Ex: 1, 2, 3...">
+      </div>
+      <div class="form-group">
+        <label for="editFDesc">Descrição / Review:</label>
         <textarea id="editFDesc" rows="3"></textarea>
       </div>
-      <button class="btn" onclick="saveMovieChanges()">Salvar Alterações no Filme</button>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal('editMovieModal')">Cancelar</button>
+        <button class="btn-primary" onclick="saveMovieChanges()">Salvar Alterações</button>
+      </div>
     </div>
   </div>
 
+  <!-- MODAL DE TELA CHEIA PARA O VÍDEO DO PLAYER -->
+  <div id="playerModal" class="modal player-modal-container">
+    <div class="modal-content player-modal-content">
+      <div class="player-iframe-wrapper">
+        <iframe id="moviePlayerIframe" src="" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <div class="modal-actions" style="margin-top: 15px; text-align: right;">
+        <button class="btn-secondary" onclick="closeModal('playerModal')">Fechar Player</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT PRINCIPAL -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
