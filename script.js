@@ -36,7 +36,7 @@ let profiles = defaultProfiles;
 let movies = [];
 
 let currentSelection = 'catalogo_geral'; 
-let currentSortOrder = 'newest';
+let currentSortOrder = 'edition_desc';
 let selectedMovieId = null;
 let currentUser = null;
 let loggedUsername = null;
