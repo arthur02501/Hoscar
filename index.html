@@ -42,16 +42,19 @@
 
     <!-- Catálogo de Filmes -->
     <h3 class="catalog-title" id="catalogTitle">Catálogo Geral</h3>
-    <!-- Seletor de Ordenação -->
+    
+    <!-- Seletor de Ordenação (Atualizado com Edição) -->
     <div class="sort-container">
-    <label for="sortSelect">Ordenar por:</label>
-    <select id="sortSelect" onchange="window.changeSortOrder(this.value)">
-    <option value="newest">Mais Recentes</option>
-    <option value="oldest">Mais Antigos</option>
-    <option value="rating_desc">Maior Nota (★)</option>
-    <option value="rating_asc">Menor Nota (★)</option>
-  </select>
-</div>
+      <label for="sortSelect">Ordenar por:</label>
+      <select id="sortSelect" onchange="window.changeSortOrder(this.value)">
+        <option value="newest">Mais Recentes</option>
+        <option value="oldest">Mais Antigos</option>
+        <option value="edition_desc">Maior Edição (Primeiro)</option>
+        <option value="rating_desc">Maior Nota (★)</option>
+        <option value="rating_asc">Menor Nota (★)</option>
+      </select>
+    </div>
+
     <div class="grid" id="movieGrid"></div>
   </div>
 
@@ -66,8 +69,11 @@
         <div class="movie-modal-details">
           <h2 id="mModalTitle"></h2>
           <div class="meta-item"><strong>Nota:</strong> <span id="mModalRating"></span>/10</div>
+          
+          <!-- Edição e Prêmios controlados dinamicamente via JS -->
           <div class="meta-item" id="mModalEditorContainer" style="display:none;"><strong>Edição:</strong> <span id="mModalEditor"></span></div>
-          <div class="meta-item"><strong>Prêmios:</strong> <span id="mModalAwards"></span></div>
+          <div class="meta-item" id="mModalAwardsContainer" style="display:none;"><strong>Prêmios:</strong> <span id="mModalAwards"></span></div>
+          
           <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
           
           <div id="mPlayerContainer" style="margin-top:15px; display:none;">
@@ -89,7 +95,7 @@
       <span class="close-modal" onclick="closeModal('playerModal')">&times;</span>
       <h3 id="playerModalTitle" style="color:var(--accent-yellow); margin-bottom:15px;">Reproduzindo Filme</h3>
       <div class="player-iframe-wrapper">
-        <iframe id="playerIframe" src="" frameborder="0" allowfullscreen></iframe>
+        <iframe id="playerIframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
   </div>
@@ -170,20 +176,20 @@
         <input type="number" step="0.1" id="fRating">
       </div>
       <div class="form-group">
-        <label>Edição que participou</label>
+        <label>Edição que participou (Opcional - ex: 5ª Edição)</label>
         <input type="text" id="fEditor" placeholder="Ex: 5ª Edição do Hoscar">
       </div>
       <div class="form-group">
-        <label>Prêmios</label>
-        <input type="text" id="fAwards">
+        <label>Prêmios (Opcional)</label>
+        <input type="text" id="fAwards" placeholder="Ex: Melhor Filme, Melhor Ator">
       </div>
       <div class="form-group">
         <label>Descrição / Resumo</label>
         <textarea id="fDesc" rows="3"></textarea>
       </div>
       <div class="form-group">
-        <label>Link do Player de Vídeo (Opcional - Apenas Admin)</label>
-        <input type="text" id="fPlayerUrl" placeholder="https://link-do-video.com/embed">
+        <label>Link do Player de Vídeo (Opcional - ex: Tokyvideo Embed)</label>
+        <input type="text" id="fPlayerUrl" placeholder="https://www.tokyvideo.com/br/embed/660005">
       </div>
       <button class="btn" onclick="saveMovie()">Salvar Filme</button>
     </div>
@@ -219,8 +225,8 @@
         <textarea id="editFDesc" rows="3"></textarea>
       </div>
       <div class="form-group">
-        <label>Link do Player de Vídeo (Opcional - Apenas Admin)</label>
-        <input type="text" id="editFPlayerUrl" placeholder="https://link-do-video.com/embed">
+        <label>Link do Player de Vídeo</label>
+        <input type="text" id="editFPlayerUrl" placeholder="https://www.tokyvideo.com/br/embed/660005">
       </div>
       <button class="btn" onclick="saveMovieChanges()">Salvar Alterações no Filme</button>
     </div>
