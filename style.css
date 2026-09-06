@@ -207,7 +207,6 @@ header {
   letter-spacing: 0.5px;
 }
 
-/* Dropdown/Select Estilizado */
 .sort-container select {
   background-color: #141414;
   color: #ffd700;
@@ -247,16 +246,19 @@ header {
   padding: 10px;
 }
 
-/* Estilos para o Player de Vídeo Integrado */
+/* Player de Vídeo e Estilizações do Player */
 #mPlayerContainer button {
   background-color: var(--accent-yellow);
   color: var(--text-dark);
   font-size: 1rem;
   font-weight: bold;
-  padding: 12px;
+  padding: 10px 15px;
   border-radius: 6px;
+  width: 100%;
   box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
   transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
 }
 
 #mPlayerContainer button:hover {
@@ -265,22 +267,17 @@ header {
   box-shadow: 0 6px 15px rgba(255, 215, 0, 0.35);
 }
 
-/* Modal do Player com proporção fluida 16:9 */
-#playerModal .modal-content {
-  background-color: #000000;
-  border: 2px solid var(--accent-yellow);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-
-.player-modal-container .modal-content {
-  max-width: 900px;
+.player-modal-container {
+  max-width: 900px !important;
   width: 90%;
+  background-color: #000000 !important;
+  border: 2px solid var(--accent-yellow);
 }
 
 .player-iframe-wrapper {
   position: relative;
   width: 100%;
-  padding-bottom: 56.25%; /* Proporção 16:9 perfeita */
+  padding-bottom: 56.25%; /* Proporção perfeita 16:9 */
   height: 0;
 }
 
@@ -293,23 +290,17 @@ header {
   border-radius: 4px;
 }
 
-/* Estilo para a badge / container da Edição do Hoscar no Modal */
 #mModalEditorContainer {
   font-size: 0.95rem;
   color: var(--text-light);
   background: rgba(255, 215, 0, 0.08);
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 6px;
   border-left: 3px solid var(--accent-yellow);
-  display: inline-block;
   margin-top: 5px;
 }
 
 #mModalEditor {
   color: var(--accent-yellow);
   font-weight: bold;
-}
-
-#mModalEditorContainer strong {
-  color: var(--text-light);
 }
