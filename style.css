@@ -10,10 +10,14 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
+html {
+  overflow-y: scroll; /* Garante consistência na barra de rolagem lateral em computadores */
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-light);
-  padding-top: 60px;
+  padding-top: 70px;
 }
 
 /* Header & Menu Hambúrguer Amarelo */
@@ -155,6 +159,7 @@ header {
 .modal {
   position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 15px;
+  overflow-y: auto;
 }
 .modal.active { display: flex; }
 .modal-content {
@@ -290,7 +295,7 @@ header {
   border-radius: 4px;
 }
 
-#mModalEditorContainer {
+#mModalEditorContainer, #mModalAwardsContainer {
   font-size: 0.95rem;
   color: var(--text-light);
   background: rgba(255, 215, 0, 0.08);
@@ -300,7 +305,7 @@ header {
   margin-top: 5px;
 }
 
-#mModalEditor {
+#mModalEditor, #mModalAwards {
   color: var(--accent-yellow);
   font-weight: bold;
 }
