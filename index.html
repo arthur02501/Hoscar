@@ -66,13 +66,35 @@
         <div class="movie-modal-details">
           <h2 id="mModalTitle"></h2>
           <div class="meta-item"><strong>Nota:</strong> <span id="mModalRating"></span>/10</div>
+          
+          <!-- Editado por (acima dos prêmios) -->
+          <div class="meta-item" id="mModalEditorContainer" style="display:none;">
+            <strong>Editado por:</strong> <span id="mModalEditor"></span>
+          </div>
+
           <div class="meta-item"><strong>Prêmios:</strong> <span id="mModalAwards"></span></div>
           <div class="meta-item"><strong>Descrição:</strong><p id="mModalDesc"></p></div>
-          <div id="mAdminActions" style="margin-top:20px; display:none; gap:10px;">
+          
+          <!-- Botão de Play (Aparece apenas se houver link cadastrado) -->
+          <div id="mPlayerContainer" style="margin-top: 15px; display: none;">
+            <button class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="openPlayerModal()">▶ Assistir Filme</button>
+          </div>
+
+          <div id="mAdminActions" style="margin-top:20px; display:none; gap:10px; flex-wrap: wrap;">
             <button class="btn btn-secondary" onclick="openEditMovieModal()">✏️ Editar Filme</button>
             <button class="btn btn-secondary" onclick="deleteCurrentMovie()">Excluir Filme</button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Player de Vídeo -->
+  <div class="modal" id="playerModal">
+    <div class="modal-content" style="max-width: 850px; background: #000;">
+      <span class="close-modal" onclick="closeModal('playerModal')">&times;</span>
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+        <iframe id="moviePlayerIframe" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen></iframe>
       </div>
     </div>
   </div>
@@ -149,6 +171,10 @@
         <input type="text" id="fImg" placeholder="https://link-da-imagem.com/capa.jpg">
       </div>
       <div class="form-group">
+        <label>Link do Player (Vídeo/Embed - Exclusivo Admin)</label>
+        <input type="text" id="fPlayerLink" placeholder="https://www.youtube.com/embed/... ou link direto">
+      </div>
+      <div class="form-group">
         <label>Nota (0 a 10)</label>
         <input type="number" step="0.1" id="fRating">
       </div>
@@ -176,6 +202,10 @@
       <div class="form-group">
         <label>Link Direct da Capa</label>
         <input type="text" id="editFImg">
+      </div>
+      <div class="form-group">
+        <label>Link do Player (Vídeo/Embed - Exclusivo Admin)</label>
+        <input type="text" id="editFPlayerLink" placeholder="https://www.youtube.com/embed/... ou link direto">
       </div>
       <div class="form-group">
         <label>Nota (0 a 10)</label>
