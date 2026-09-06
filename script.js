@@ -38,7 +38,7 @@ let profiles = defaultProfiles;
 let movies = [];
 
 let currentSelection = 'catalogo_geral'; 
-let currentSortOrder = 'newest'; // Critério de ordenação ativo
+let currentSortOrder = 'newest';
 let selectedMovieId = null;
 let currentUser = null;
 let loggedUsername = null;
@@ -74,25 +74,21 @@ async function init() {
   selectView('catalogo_geral');
 }
 
-// Carrega perfis e filmes da nuvem (Firebase)
 async function loadProfilesFromCloud() {
   try {
     const docRef = doc(db, "app_data", "profiles");
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const cloudProfiles = docSnap.data().list || [];
-      
       const profileMap = new Map();
       defaultProfiles.forEach(p => profileMap.set(p.id, p));
       cloudProfiles.forEach(p => profileMap.set(p.id, p));
-      
       profiles = Array.from(profileMap.values());
     }
   } catch (e) {
     console.log("Usando lista padrão de perfis.");
     profiles = defaultProfiles;
   }
-  
   renderNav();
 }
 
@@ -109,7 +105,6 @@ async function loadMoviesFromCloud() {
   }
 }
 
-// Salva lista de filmes na nuvem
 async function saveMoviesToCloud() {
   try {
     await setDoc(doc(db, "app_data", "movies"), { list: movies });
@@ -164,7 +159,6 @@ function selectView(id) {
   renderCatalog();
 }
 
-// ALTERAR A ORDENAÇÃO DOS FILMES
 window.changeSortOrder = function(order) {
   currentSortOrder = order;
   renderCatalog();
@@ -190,15 +184,11 @@ function renderCatalog() {
     const idB = parseInt(b.id) || 0;
 
     switch (currentSortOrder) {
-      case 'oldest':
-        return idA - idB; 
-      case 'rating_desc':
-        return ratingB - ratingA; 
-      case 'rating_asc':
-        return ratingA - ratingB; 
+      case 'oldest': return idA - idB; 
+      case 'rating_desc': return ratingB - ratingA; 
+      case 'rating_asc': return ratingA - ratingB; 
       case 'newest':
-      default:
-        return idB - idA; 
+      default: return idB - idA; 
     }
   });
 
@@ -221,7 +211,6 @@ function renderCatalog() {
   });
 }
 
-// LOGIN
 window.handleLogin = async function() {
   const usernameInput = document.getElementById('loginUsername').value.toLowerCase().trim();
   const pass = document.getElementById('loginPassword').value;
@@ -238,7 +227,6 @@ window.handleLogin = async function() {
   }
 }
 
-// CAIXA SECRETA COM FIRESTORE
 window.openSecretModal = async function() {
   if (!currentUser) {
     alert("Você precisa estar logado para acessar as caixas secretas!");
@@ -292,14 +280,12 @@ window.saveSecretReview = async function() {
   }
 }
 
-// EDITA O PERFIL SELECIONADO E SALVA NA NUVEM
 window.openEditProfileModal = () => {
   const p = profiles.find(item => item.id === currentSelection);
   if(!p) return;
   document.getElementById('editName').value = p.name;
   document.getElementById('editImg').value = p.img;
   document.getElementById('editDesc').value = p.desc;
-  
   document.getElementById('editName').disabled = !isAdmin;
   window.openModal('editProfileModal');
 };
@@ -325,23 +311,24 @@ window.saveProfileChanges = async () => {
   }
 };
 
-// ADICIONAR E EDITAR FILMES NA NUVEM
 window.openAddMovieModal = () => {
-  // Limpar os campos do form de adicionar
   document.getElementById('fTitle').value = '';
   document.getElementById('fImg').value = '';
   if(document.getElementById('fPlayerLink')) document.getElementById('fPlayerLink').value = '';
   document.getElementById('fRating').value = '';
   document.getElementById('fAwards').value = '';
   document.getElementById('fDesc').value = '';
+  if(document.getElementById('fEdition')) document.getElementById('fEdition').value = '';
   window.openModal('addMovieModal');
 };
 
 window.saveMovie = async () => {
   const movieProfileOwner = (currentSelection === 'catalogo_geral') ? 'arthur' : currentSelection;
-
   const playerInput = document.getElementById('fPlayerLink');
   const playerLinkVal = (isAdmin && playerInput) ? playerInput.value.trim() : '';
+  
+  const editionInput = document.getElementById('fEdition');
+  const editionVal = editionInput ? editionInput.value.trim() : '';
 
   const newMovie = {
     id: Date.now().toString(),
@@ -352,7 +339,7 @@ window.saveMovie = async () => {
     awards: document.getElementById('fAwards').value,
     desc: document.getElementById('fDesc').value,
     playerLink: playerLinkVal,
-    lastEditedBy: loggedUsername || 'Administrador'
+    edition: editionVal
   };
   
   movies.push(newMovie);
@@ -372,13 +359,15 @@ window.openMovieModal = (id) => {
   document.getElementById('mModalAwards').textContent = m.awards || 'Nenhum';
   document.getElementById('mModalDesc').textContent = m.desc || 'Sem descrição.';
 
-  // Exibir quem editou (se houver registro) acima dos prêmios
+  // Exibir a Edição do Hoscar apenas se houver um número preenchido
   const editorContainer = document.getElementById('mModalEditorContainer');
-  if (m.lastEditedBy) {
-    document.getElementById('mModalEditor').textContent = m.lastEditedBy;
-    editorContainer.style.display = 'block';
-  } else {
-    editorContainer.style.display = 'none';
+  if (editorContainer) {
+    if (m.edition && m.edition.trim() !== '') {
+      document.getElementById('mModalEditor').textContent = `Edição ${m.edition}`;
+      editorContainer.style.display = 'block';
+    } else {
+      editorContainer.style.display = 'none';
+    }
   }
 
   // Exibir ou ocultar o botão de Play dependendo da existência de link de vídeo
@@ -403,13 +392,17 @@ window.openEditMovieModal = () => {
   const editPlayerInput = document.getElementById('editFPlayerLink');
   if(editPlayerInput) {
     editPlayerInput.value = m.playerLink || '';
-    // Bloqueia a edição do link do player caso não seja admin (segurança extra)
     editPlayerInput.disabled = !isAdmin;
   }
 
   document.getElementById('editFRating').value = m.rating || '';
   document.getElementById('editFAwards').value = m.awards || '';
   document.getElementById('editFDesc').value = m.desc || '';
+
+  const editEditionInput = document.getElementById('editFEdition');
+  if(editEditionInput) {
+    editEditionInput.value = m.edition || '';
+  }
 
   window.openModal('editMovieModal');
 };
@@ -429,7 +422,11 @@ window.saveMovieChanges = async () => {
   m.rating = document.getElementById('editFRating').value;
   m.awards = document.getElementById('editFAwards').value;
   m.desc = document.getElementById('editFDesc').value;
-  m.lastEditedBy = loggedUsername || 'Administrador';
+
+  const editEditionInput = document.getElementById('editFEdition');
+  if (editEditionInput) {
+    m.edition = editEditionInput.value.trim();
+  }
 
   await saveMoviesToCloud();
   renderCatalog();
@@ -454,12 +451,10 @@ window.openPlayerModal = () => {
   window.openModal('playerModal');
 };
 
-// MODAIS & MENU
 window.openLoginModal = () => window.openModal('loginModal');
 window.openModal = (id) => document.getElementById(id).classList.add('active');
 window.closeModal = (id) => {
   document.getElementById(id).classList.remove('active');
-  // Limpa o iframe do player ao fechar para parar o vídeo rodando em background
   if(id === 'playerModal') {
     document.getElementById('moviePlayerIframe').src = '';
   }
