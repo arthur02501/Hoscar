@@ -300,6 +300,22 @@ header {
   border-radius: 4px;
   border-left: 3px solid var(--accent-yellow);
 }
+/* Estilo para a badge / container da Edição do Hoscar no Modal */
+#mModalEditorContainer {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  background: rgba(255, 215, 0, 0.08);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid var(--accent-yellow);
+  display: inline-block;
+  margin-top: 5px;
+}
+
+#mModalEditor {
+  color: var(--accent-yellow);
+  font-weight: bold;
+}
 
 #mModalEditorContainer strong {
   color: var(--text-light);
