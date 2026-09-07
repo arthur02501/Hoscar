@@ -305,7 +305,7 @@ header {
   height: 100%;
   border-radius: 4px;
 }
-#mModalEditorContainer, #mModalAwardsContainer {
+#mModalEditorContainer, #mModalAwardsContainer, #mModalNotaContainer {
   font-size: 0.95rem;
   color: var(--text-light);
   background: rgba(255, 215, 0, 0.08);
@@ -315,7 +315,7 @@ header {
   margin-top: 5px;
 }
 
-#mModalEditor, #mModalAwards {
+#mModalEditor, #mModalAwards, #mModalRating {
   color: var(--accent-yellow);
   font-weight: bold;
 }
